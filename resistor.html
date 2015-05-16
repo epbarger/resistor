@@ -16,13 +16,13 @@
     <link rel="stylesheet" href="resistor.css">
     <script src="resistor.js"></script>
 
-    <title>Resistor Calc</title>
+    <title>Resistor Calculator</title>
   </head>
 
   <body>
     <div class='container'>
       <div class="page-header">
-        <h1>Resistor Calc</h1>
+        <h1>Resistor Calculator</h1>
       </div>
 
       <div role="tabpanel">
@@ -56,17 +56,35 @@
 
             <div class='row results'>
               <div class='col-sm-4' style='text-align:center;'>
-                <div id='resistor-value' style='font-size:5em;'>3.2K &#937;</div>
+                <div id='resistor-value' style='font-size:5em;'>2.4K &#937;</div>
               </div>
               <div class='col-sm-8'>
-                <div class='row' style='padding-top:20px;'>
+                <div class='row band-container'>
                   <div class='col-xs-1'></div>
-                  <div class='col-xs-3 res-one' style='background-color:red;'></br></br></br></div>
-                  <div class='col-xs-3 res-two' style='background-color:blue;'></br></br></br></div>
-                  <div class='col-xs-3 res-three' style='background-color:green;'></br></br></br></div>
-                  <!-- <div class='col-xs-1'></div> -->
-                  <div class='col-xs-1 res-tol' style='background-color:gold;'></br></br></br></div>
-                  <!-- <div class='col-xs-2'></div> -->
+
+                  <div class='col-xs-2'>
+                    1st
+                    <div class='res-band res-one'></div>
+                  </div>
+
+                  <div class='col-xs-2'>
+                    2nd
+                    <div class='res-band res-two'></div>
+                  </div>
+
+                  <div class='col-xs-2'>
+                    Multiplier
+                    <div class='res-band res-three'></div>
+                  </div>
+
+                  <div class='col-xs-2'></div>
+
+                  <div class='col-xs-2'>
+                    Tolerance
+                    <div class='res-band res-tol'></div>
+                  </div>
+
+                  <div class='col-xs-1'></div>
                 </div>
               </div>
             </div>
