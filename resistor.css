@@ -1,0 +1,11 @@
+.tab-pane {
+  padding-top: 30px
+}
+
+.results {
+  padding-top: 30px
+}
+
+.nav-pills > li.active > a, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:hover {
+  background-color: #8BABC6;
+}

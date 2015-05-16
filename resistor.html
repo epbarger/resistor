@@ -1,0 +1,92 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <!-- JQuery -->
+    <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="https://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+
+    <!-- LoDash -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.1.0/lodash.min.js"></script>
+
+    <!-- Resistor -->
+    <link rel="stylesheet" href="resistor.css">
+    <script src="resistor.js"></script>
+
+    <title>Resistor Calc</title>
+  </head>
+
+  <body>
+    <div class='container'>
+      <div class="page-header">
+        <h1>Resistor Calc</h1>
+      </div>
+
+      <div role="tabpanel">
+        <!-- Nav tabs -->
+        <ul class="nav nav-pills nav-justified" role="tablist">
+          <li role="presentation" class="active"><a href="#c2v" aria-controls="c2v" role="tab" data-toggle="pill">
+            Value &#8594; Color
+          </a></li>
+          <li role="presentation"><a href="#v2c" aria-controls="v2c" role="tab" data-toggle="pill">
+            Color &#8594; Value
+          </a></li>
+        </ul>
+
+        <!-- Tab panes -->
+        <div class="tab-content">
+          <div role="tabpanel" class="tab-pane active" id="c2v">
+            <div class='row'>
+              <div class='col-xs-12'>
+
+                <form id='c2v-form'>
+                  <div class='input-group'>
+                    <input type="text" class="form-control input-lg" id="c2v-input" placeholder="Ex. 9.1K">
+                    <div class="input-group-btn">
+                      <button id='c2v-submit' type='submit' class="btn btn-lg btn-default">Calculate</button>
+                    </div>
+                  </div>
+                </form>
+
+              </div>
+            </div>
+
+            <div class='row results'>
+              <div class='col-sm-4' style='text-align:center;'>
+                <div id='resistor-value' style='font-size:5em;'>3.2K &#937;</div>
+              </div>
+              <div class='col-sm-8'>
+                <div class='row' style='padding-top:20px;'>
+                  <div class='col-xs-1'></div>
+                  <div class='col-xs-3 res-one' style='background-color:red;'></br></br></br></div>
+                  <div class='col-xs-3 res-two' style='background-color:blue;'></br></br></br></div>
+                  <div class='col-xs-3 res-three' style='background-color:green;'></br></br></br></div>
+                  <!-- <div class='col-xs-1'></div> -->
+                  <div class='col-xs-1 res-tol' style='background-color:gold;'></br></br></br></div>
+                  <!-- <div class='col-xs-2'></div> -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div role="tabpanel" class="tab-pane" id="v2c">
+            <div class='row'>
+              <div class='col-xs-12'>
+                Coming soon
+                <!-- <select style='background-color:blue;color:white'>
+                  <option value="1" style='background-color:red'>One</option>
+                  <option value="2">Two</option>
+                  <option value="3">Three</option>
+                </select> -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </body>
+</html>
