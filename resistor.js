@@ -1,14 +1,35 @@
+/*
+  TODO 
+  - add color to value mode
+  - add link to parts
+  - random placeholder value
+
+  MAYBE
+  - add E12 and E24 recognition
+*/
+
 $(function(){
   $('#c2v-form').on('submit', function(e){
     e.preventDefault();
     var value = $('#c2v-input').val()
-    var floatVal = parseResistorStringToFloat(value)
-    var colorCode = calculateColorCodeFromFloat(floatVal)
-    $('#resistor-value').text(value + ' \u03A9')
-    $('#resistor-color-code').text(colorCode)
-    $('.res-one').css('background-color', colorCode[0]);
-    $('.res-two').css('background-color', colorCode[1]);
-    $('.res-three').css('background-color', colorCode[2]);
+    if (value !== ''){
+      var floatVal = parseResistorStringToFloat(value)
+      console.log("Input interpreted as: " + floatVal)
+
+      if (floatVal > 10000000){
+        alert("Values greater than 10M \u03A9 are not supported")
+      } else if (floatVal < 0.1) {
+        alert("Values less than 0.1 \u03A9 are not supported")
+      } else {
+        var colorCode = calculateColorCodeFromFloat(floatVal)
+        var valueString = resistanceFloatToValueString(floatVal)
+        $('#resistor-value').text(valueString + ' \u03A9')
+        $('#resistor-color-code').text(colorCode)
+        $('.res-one').css('background-color', colorCode[0]);
+        $('.res-two').css('background-color', colorCode[1]);
+        $('.res-three').css('background-color', colorCode[2]);
+      }
+    }
   });
 });
 
@@ -30,7 +51,55 @@ var parseResistorStringToFloat = function(resistorString){
       resistorFloat = resistorFloat * 1000000
       break
   }
-  return resistorFloat
+
+  // we need to santitize to float to a realistic resitor value, IE not 1002 ohms.
+  return sanitizeResistorFloat(resistorFloat)
+}
+
+var sanitizeResistorFloat = function(resistorFloat){
+  var resistorFloatString = resistorFloat.toString()
+  var santitizedString = '';
+  for (var i = 0; i < resistorFloatString.length; i++) {
+    var digit = resistorFloatString.charAt(i)
+    if (santitizedString.replace(/[^0-9]/g, '').length < 2){ // if there are less than two numbers in the santized string
+      santitizedString += digit
+    } else {
+      santitizedString += '0'
+    }
+  }
+  return parseFloat(santitizedString)
+}
+
+var resistanceFloatToValueString = function(resistorFloat){
+  var valueString = parseFloat(resistorFloat.toFixed(2)).toString()
+  if (resistorFloat > 1.0){
+    var numberOfZeroes = (valueString.match(/0/g) || []).length
+    switch (numberOfZeroes){
+      case 2:
+        if (valueString.length > 3){
+          valueString = (resistorFloat / 1000).toString() + 'K'
+        } 
+        break
+      case 3:
+        valueString = (resistorFloat / 1000).toString() + 'K'
+        break
+      case 4:
+        valueString = (resistorFloat / 1000).toString() + 'K'
+        break
+      case 5:
+        if (valueString.length > 6){
+          valueString = (resistorFloat / 1000000).toString() + 'M'
+        } 
+        break
+      case 6:
+        valueString = (resistorFloat / 1000000).toString() + 'M'
+        break
+      case 7:
+        valueString = (resistorFloat / 1000000).toString() + 'M'
+        break
+    }
+  }
+  return valueString
 }
 
 var calculateColorCodeFromFloat = function(resistorFloat){
