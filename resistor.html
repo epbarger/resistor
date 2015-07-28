@@ -16,13 +16,13 @@
     <link rel="stylesheet" href="resistor.css">
     <script src="resistor.js"></script>
 
-    <title>Resistor Code Calculator</title>
+    <title>Resistor Calculator</title>
   </head>
 
   <body>
     <div class='container'>
       <div class="page-header">
-        <h1>Resistor Code Calculator</h1>
+        <h1>Resistor Calculator</h1>
       </div>
 
       <div role="tabpanel">
@@ -44,9 +44,9 @@
 
                 <form id='c2v-form'>
                   <div class='input-group'>
-                    <input type="text" class="form-control input-lg" id="c2v-input" placeholder="9.1K">
+                    <input type="text" class="form-control input-lg" id="c2v-input">
                     <div class="input-group-btn">
-                      <select class="form-control input-lg" style='width:6em;'>
+                      <select class="form-control input-lg" style='width:6em;' id='c2v-tolerance'>
                         <option value='10'>&#177;10%</option>
                         <option value='5' selected="selected">&#177;5%</option>
                         <option value='1'>&#177;1%</option>

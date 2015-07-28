@@ -2,7 +2,7 @@
   TODO 
   - add color to value mode
   - add link to parts
-  - random placeholder value
+  - implement color mapping so I can customize the color code colors
 
   MAYBE
   - add E12 and E24 recognition
@@ -12,6 +12,7 @@ $(function(){
   $('#c2v-form').on('submit', function(e){
     e.preventDefault();
     var value = $('#c2v-input').val()
+    var toleranceValue = parseInt( $('#c2v-tolerance').val() )
     if (value !== ''){
       var floatVal = parseResistorStringToFloat(value)
       console.log("Input interpreted as: " + floatVal)
@@ -22,15 +23,23 @@ $(function(){
         alert("Values less than 0.1 \u03A9 are not supported")
       } else {
         var colorCode = calculateColorCodeFromFloat(floatVal)
+        var toleranceColorCode = calculateToleranceFromInt(toleranceValue)
         var valueString = resistanceFloatToValueString(floatVal)
         $('#resistor-value').text(valueString + ' \u03A9')
         $('#resistor-color-code').text(colorCode)
         $('.res-one').css('background-color', colorCode[0]);
         $('.res-two').css('background-color', colorCode[1]);
         $('.res-three').css('background-color', colorCode[2]);
+        $('.res-tol').css('background-color', toleranceColorCode);
       }
     }
   });
+
+  var placeholderValue = getPlaceholderValue()
+  $('#c2v-input').val(placeholderValue)
+  $('#c2v-input').attr("placeholder", "Example: " + placeholderValue)
+  $('#c2v-form').trigger('submit')
+  $('#c2v-input').val(null)
 });
 
 var parseResistorStringToFloat = function(resistorString){
@@ -121,4 +130,23 @@ var calculateColorCodeFromFloat = function(resistorFloat){
   var secondBand = colorArray[parseInt(baseValueIndices.shift())]
 
   return [firstBand, secondBand, multiplier]
+}
+
+var calculateToleranceFromInt = function(toleranceInt){
+  switch(toleranceInt){
+    case 10:
+      return "silver"
+      break
+    case 5:
+      return "gold"
+      break
+    case 1:
+      return "brown"
+      break
+  }
+}
+
+var getPlaceholderValue = function(){
+  placeholderValues = ["9.1K","4.4","200","8.1M","27K","1.2K","8.3K", "0.2"]
+  return placeholderValues[Math.floor(Math.random()*placeholderValues.length)]
 }
