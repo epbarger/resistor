@@ -26,6 +26,7 @@ $(function(){
         var toleranceColorCode = calculateToleranceFromInt(toleranceValue)
         var valueString = resistanceFloatToValueString(floatVal)
         $('#resistor-value').text(valueString + ' \u03A9')
+        $('#resistor-tol').text('\u00B1' + toleranceValue + '%')
         $('#resistor-color-code').text(colorCode)
         $('.res-one').css('background-color', colorCode[0]);
         $('.res-two').css('background-color', colorCode[1]);
