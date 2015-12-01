@@ -9,6 +9,18 @@
 */
 
 $(function(){
+  copySelectColorStyles()
+
+  $('.color-selector').on('change', function(e){
+    copySelectColorStyles(this);
+  });
+
+  $('#v2c-form').on('submit', function(e){
+    e.preventDefault();
+    var value = calculateValueFromColorValues($('#v2c-color1').val(), $('#v2c-color2').val(), $('#v2c-multiplier').val())
+    console.log(value)
+  })
+
   $('#c2v-form').on('submit', function(e){
     e.preventDefault();
     var value = $('#c2v-input').val()
@@ -42,6 +54,14 @@ $(function(){
   $('#c2v-form').trigger('submit')
   $('#c2v-input').val(null)
 });
+
+var copySelectColorStyles = function(){
+  $('.color-selector').each(function(){
+    $dropdown = $(this)
+    css = $dropdown.find(':selected').attr('style')
+    $dropdown.attr('style', css)
+  })
+}
 
 var parseResistorStringToFloat = function(resistorString){
   var strippedString = resistorString.replace(/[^0-9.rRkKmM]/g, '') // remove all whitespace and non r,k,m
@@ -145,6 +165,10 @@ var calculateToleranceFromInt = function(toleranceInt){
       return "brown"
       break
   }
+}
+
+var calculateValueFromColorValues = function(color1, color2, multiplier){
+  return ((parseInt(color1) * 10) + parseInt(color2)) * multiplier
 }
 
 var getPlaceholderValue = function(){
