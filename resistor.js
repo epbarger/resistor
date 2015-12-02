@@ -39,6 +39,7 @@ $(function(){
       $('#tolerance').val(dropdownValues[3])
       copySelectColorStyles()
     }
+    if (document.activeElement != document.body) document.activeElement.blur();
   });
 
   var placeholderValue = getPlaceholderValue()
