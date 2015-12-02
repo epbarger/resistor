@@ -1,70 +1,105 @@
-/*
-  TODO 
-  - add color to value mode
-  - add link to parts
-  - implement color mapping so I can customize the color code colors
-
-  MAYBE
-  - add E12 and E24 recognition
-*/
-
 $(function(){
   copySelectColorStyles()
 
   $('.color-selector').on('change', function(e){
     copySelectColorStyles(this);
+    var colorValue = calculateValueFromColorValues($('#band1').val(), $('#band2').val(), $('#multiplier').val())
+    var resistorString = resistanceFloatToValueString(colorValue)
+    $('#resistor-value').val(resistorString + " \u00B1" + $('#tolerance').val() + "%")
   });
 
-  $('#v2c-form').on('submit', function(e){
-    e.preventDefault();
-    var value = calculateValueFromColorValues($('#v2c-color1').val(), $('#v2c-color2').val(), $('#v2c-multiplier').val())
-    console.log(value)
-  })
+  $('#resistor-value').on('change', function(e){
+    var resistorFloat = parseResistorStringToFloat($(this).val())
+    if (resistorFloat > 99000000){
+      alert("Values greater than 99M are not supported")
+    } else if (resistorFloat < 0.1){
+      alert("Values less than 0.1 are not supported")
+    } else {
+      var dropdownValues = valueStringToDropdownValues(resistorFloat, $(this).val())
+      $('#band1').val(dropdownValues[0])
+      $('#band2').val(dropdownValues[1])
+      $('#multiplier').val(dropdownValues[2])
+      $('#tolerance').val(dropdownValues[3])
+      copySelectColorStyles()
+    }
+  });
 
-  $('#c2v-form').on('submit', function(e){
-    e.preventDefault();
-    var value = $('#c2v-input').val()
-    var toleranceValue = parseInt( $('#c2v-tolerance').val() )
-    if (value !== ''){
-      var floatVal = parseResistorStringToFloat(value)
-      console.log("Input interpreted as: " + floatVal)
-
-      if (floatVal > 10000000){
-        alert("Values greater than 10M \u03A9 are not supported")
-      } else if (floatVal < 0.1) {
-        alert("Values less than 0.1 \u03A9 are not supported")
-      } else {
-        var colorCode = calculateColorCodeFromFloat(floatVal)
-        var toleranceColorCode = calculateToleranceFromInt(toleranceValue)
-        var valueString = resistanceFloatToValueString(floatVal)
-        $('#resistor-value').text(valueString + ' \u03A9')
-        $('#resistor-tol').text('\u00B1' + toleranceValue + '%')
-        $('#resistor-color-code').text(colorCode)
-        $('.res-one').css('background-color', colorCode[0]);
-        $('.res-two').css('background-color', colorCode[1]);
-        $('.res-three').css('background-color', colorCode[2]);
-        $('.res-tol').css('background-color', toleranceColorCode);
-      }
+  $('#resistor-form').on('submit', function(e){
+    e.preventDefault()
+    var resistorFloat = parseResistorStringToFloat($('#resistor-value').val())
+    if (resistorFloat > 99000000){
+      alert("Values greater than 99M are not supported")
+    } else if (resistorFloat < 0.1){
+      alert("Values less than 0.1 are not supported")
+    } else {
+      var dropdownValues = valueStringToDropdownValues(resistorFloat, $('#resistor-value').val())
+      $('#band1').val(dropdownValues[0])
+      $('#band2').val(dropdownValues[1])
+      $('#multiplier').val(dropdownValues[2])
+      $('#tolerance').val(dropdownValues[3])
+      copySelectColorStyles()
     }
   });
 
   var placeholderValue = getPlaceholderValue()
-  $('#c2v-input').val(placeholderValue)
-  $('#c2v-input').attr("placeholder", "Example: " + placeholderValue)
-  $('#c2v-form').trigger('submit')
-  $('#c2v-input').val(null)
+  $('#resistor-value').val(placeholderValue)
+  // $('#resistor-value').attr("placeholder", "Example: " + placeholderValue)
+  $('#resistor-form').trigger('submit')
+  // $('#resistor-value').val(null)
 });
 
-var copySelectColorStyles = function(){
-  $('.color-selector').each(function(){
-    $dropdown = $(this)
-    css = $dropdown.find(':selected').attr('style')
-    $dropdown.attr('style', css)
-  })
+var roundToleranceDown = function(tolerance){
+  var values = $("#tolerance option").map(function() {return $(this).val()}).get().reverse()
+  var i = index(values, function(x){ return x - tolerance })
+  return values[i]
+}
+
+var valueStringToDropdownValues = function(resistorFloat, valueString){
+  var resistanceString = resistanceFloatToValueString(resistorFloat)
+
+  var band1 = resistanceString.match(/\d/g)[0]
+  var band2 = resistanceString.match(/\d/g)[1] || 0
+
+  var multiplierChar = (resistanceString.match(/[kKmM]/) || ['r'])[0].toLowerCase()
+  switch (multiplierChar) {
+    case 'k':
+      var multiplier = 1000
+      break
+    case 'm':
+      var multiplier = 1000000
+      break
+    default :
+      var multiplier = 1
+  }
+  multiplier = multiplier.toString() + (resistanceString.match(/0/g) || []).join('')
+  if (resistanceString.match(/[.]/) || resistorFloat < 10){
+    multiplier = multiplier / 10
+  }
+  if (resistorFloat < 1){
+    multiplier = multiplier / 10
+    var tmp = band1
+    band1 = band2
+    band2 = tmp
+  }
+
+  var toleranceString = valueString.match(/[0-9.]+\s*%/g)
+  if (toleranceString){
+    var tolerance = toleranceString[0].match(/[0-9.]+/g)[0]
+    if (tolerance < 0.05){
+      tolerance = '20'
+    } else {
+      tolerance = roundToleranceDown(tolerance)
+    }
+  } else {
+    var tolerance = '20'
+  }
+
+  return [band1, band2, multiplier, tolerance]
 }
 
 var parseResistorStringToFloat = function(resistorString){
-  var strippedString = resistorString.replace(/[^0-9.rRkKmM]/g, '') // remove all whitespace and non r,k,m
+  var strippedString = resistorString.replace(/[0-9.]+\s*%/g, '')
+  strippedString = strippedString.replace(/[^0-9.rRkKmM]/g, '') // remove all whitespace and non r,k,m
   if (strippedString.indexOf('.') === -1){ // if no decimals
     strippedString = strippedString.replace(/[rRkKmM]/,'.') // replace the first letter with a decimal
     var baseValue = parseFloat(strippedString.replace(/[^0-9.]/g, '')) // remove all letters and parse
@@ -100,6 +135,18 @@ var sanitizeResistorFloat = function(resistorFloat){
   return parseFloat(santitizedString)
 }
 
+var copySelectColorStyles = function(){
+  $('.color-selector').each(function(){
+    $dropdown = $(this)
+    css = $dropdown.find(':selected').attr('style')
+    $dropdown.attr('style', css)
+  })
+}
+
+var calculateValueFromColorValues = function(color1, color2, multiplier){
+  return ((parseInt(color1) * 10) + parseInt(color2)) * multiplier
+}
+
 var resistanceFloatToValueString = function(resistorFloat){
   var valueString = parseFloat(resistorFloat.toFixed(2)).toString()
   if (resistorFloat > 1.0){
@@ -132,46 +179,25 @@ var resistanceFloatToValueString = function(resistorFloat){
   return valueString
 }
 
-var calculateColorCodeFromFloat = function(resistorFloat){
-  resistorString = resistorFloat.toFixed(2).toString()
-  colorArray = ['silver', 'gold', 'black', 'brown', 'red', 'orange', 'yellow', 'green', 'blue', 'purple', 'gray', 'white']
-
-  var multiplierIndex = resistorString.split('.')[0]
-  if (multiplierIndex === '0') {
-    var multiplier = colorArray[0]
-  } else {
-    var multiplier = colorArray[multiplierIndex.length]
-  }
-
-  colorArray = colorArray.slice(2) // remove silver and gold
-  var baseValueIndices = resistorString.replace(/[0.]/g,'').split('')
-  baseValueIndices.push('0')
-
-  var firstBand = colorArray[parseInt(baseValueIndices.shift())]
-  var secondBand = colorArray[parseInt(baseValueIndices.shift())]
-
-  return [firstBand, secondBand, multiplier]
-}
-
-var calculateToleranceFromInt = function(toleranceInt){
-  switch(toleranceInt){
-    case 10:
-      return "silver"
-      break
-    case 5:
-      return "gold"
-      break
-    case 1:
-      return "brown"
-      break
-  }
-}
-
-var calculateValueFromColorValues = function(color1, color2, multiplier){
-  return ((parseInt(color1) * 10) + parseInt(color2)) * multiplier
-}
-
 var getPlaceholderValue = function(){
-  placeholderValues = ["9.1K","4.4","200","8.1M","27K","1.2K","8.3K", "0.2"]
+  placeholderValues = ["9.1K \u00B15%","4.4 \u00B11%","200 \u00B15%","8.1M \u00B110%","27K \u00B15%","1.2K \u00B15%","8.3K \u00B15%", "0.2 \u00B10.5%"]
   return placeholderValues[Math.floor(Math.random()*placeholderValues.length)]
+}
+
+// binary search ripped from http://stackoverflow.com/questions/15203994/finding-the-closest-number-downward-to-a-different-number-from-an-array
+function index(arr, compare) { // binary search, with custom compare function
+    var l = 0,
+        r = arr.length - 1;
+    while (l <= r) {
+        var m = l + ((r - l) >> 1);
+        var comp = compare(arr[m]);
+        if (comp < 0) // arr[m] comes before the element
+            l = m + 1;
+        else if (comp > 0) // arr[m] comes after the element
+            r = m - 1;
+        else // arr[m] equals the element
+            return m;
+    }
+    return l-1; // return the index of the next left item
+                // usually you would just return -1 in case nothing is found
 }
