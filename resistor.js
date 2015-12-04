@@ -44,9 +44,7 @@ $(function(){
 
   var placeholderValue = getPlaceholderValue()
   $('#resistor-value').val(placeholderValue)
-  // $('#resistor-value').attr("placeholder", "Example: " + placeholderValue)
   $('#resistor-form').trigger('submit')
-  // $('#resistor-value').val(null)
 });
 
 var roundToleranceDown = function(tolerance){
@@ -117,9 +115,10 @@ var parseResistorStringToFloat = function(resistorString){
       resistorFloat = resistorFloat * 1000000
       break
   }
-
   // we need to santitize to float to a realistic resitor value, IE not 1002 ohms.
-  return sanitizeResistorFloat(resistorFloat)
+  var santitizedString = sanitizeResistorFloat(resistorFloat)
+  console.log('input parsed as '+resistorFloat+' sanitized to '+santitizedString)
+  return santitizedString
 }
 
 var sanitizeResistorFloat = function(resistorFloat){
@@ -127,10 +126,12 @@ var sanitizeResistorFloat = function(resistorFloat){
   var santitizedString = '';
   for (var i = 0; i < resistorFloatString.length; i++) {
     var digit = resistorFloatString.charAt(i)
-    if (santitizedString.replace(/[^0-9]/g, '').length < 2){ // if there are less than two numbers in the santized string
+    if ((i == 0) || (i == 1)) {
       santitizedString += digit
-    } else {
+    } else if (digit.match(/[0-9]/g)) {
       santitizedString += '0'
+    } else {
+      santitizedString += digit
     }
   }
   return parseFloat(santitizedString)
