@@ -1,4 +1,17 @@
+jQuery.fn.center = function () {
+  this.css("position","absolute");
+  this.css("top", Math.max(0, (($(window).height() - $(this).outerHeight()) / 2) + $(window).scrollTop()) + "px");
+  this.css("left", Math.max(0, (($(window).width() - $(this).outerWidth()) / 2) + $(window).scrollLeft()) + "px");
+  return this;
+}
+
 $(function(){
+  $('.container').center()
+
+  $(window).resize(function(){
+    $('.container').center()
+  })
+
   copySelectColorStyles()
 
   $('.color-selector').on('change', function(e){
@@ -9,36 +22,12 @@ $(function(){
   });
 
   $('#resistor-value').on('change', function(e){
-    var resistorFloat = parseResistorStringToFloat($(this).val())
-    if (resistorFloat > 99000000){
-      alert("Values greater than 99M are not supported")
-    } else if (resistorFloat < 0.1){
-      alert("Values less than 0.1 are not supported")
-    } else {
-      var dropdownValues = valueStringToDropdownValues(resistorFloat, $(this).val())
-      $('#band1').val(dropdownValues[0])
-      $('#band2').val(dropdownValues[1])
-      $('#multiplier').val(dropdownValues[2])
-      $('#tolerance').val(dropdownValues[3])
-      copySelectColorStyles()
-    }
+    update($(this).val())
   });
 
   $('#resistor-form').on('submit', function(e){
     e.preventDefault()
-    var resistorFloat = parseResistorStringToFloat($('#resistor-value').val())
-    if (resistorFloat > 99000000){
-      alert("Values greater than 99M are not supported")
-    } else if (resistorFloat < 0.1){
-      alert("Values less than 0.1 are not supported")
-    } else {
-      var dropdownValues = valueStringToDropdownValues(resistorFloat, $('#resistor-value').val())
-      $('#band1').val(dropdownValues[0])
-      $('#band2').val(dropdownValues[1])
-      $('#multiplier').val(dropdownValues[2])
-      $('#tolerance').val(dropdownValues[3])
-      copySelectColorStyles()
-    }
+    update($('#resistor-value').val())
     if (document.activeElement != document.body) document.activeElement.blur();
   });
 
@@ -46,6 +35,22 @@ $(function(){
   $('#resistor-value').val(placeholderValue)
   $('#resistor-form').trigger('submit')
 });
+
+var update = function(resistorFieldVal){
+  var resistorFloat = parseResistorStringToFloat(resistorFieldVal)
+  if (resistorFloat > 99000000){
+    alert("Values greater than 99M are not supported")
+  } else if (resistorFloat < 0.1){
+    alert("Values less than 0.1 are not supported")
+  } else {
+    var dropdownValues = valueStringToDropdownValues(resistorFloat, resistorFieldVal)
+    $('#band1').val(dropdownValues[0])
+    $('#band2').val(dropdownValues[1])
+    $('#multiplier').val(dropdownValues[2])
+    $('#tolerance').val(dropdownValues[3])
+    copySelectColorStyles()
+  }
+}
 
 var roundToleranceDown = function(tolerance){
   var values = $("#tolerance option").map(function() {return $(this).val()}).get().reverse()
@@ -126,7 +131,7 @@ var sanitizeResistorFloat = function(resistorFloat){
   var santitizedString = '';
   for (var i = 0; i < resistorFloatString.length; i++) {
     var digit = resistorFloatString.charAt(i)
-    if ((i == 0) || (i == 1)) {
+    if ((santitizedString.match(/[0-9]/g) || []).length < 2) {
       santitizedString += digit
     } else if (digit.match(/[0-9]/g)) {
       santitizedString += '0'
@@ -188,18 +193,18 @@ var getPlaceholderValue = function(){
 
 // binary search ripped from http://stackoverflow.com/questions/15203994/finding-the-closest-number-downward-to-a-different-number-from-an-array
 function index(arr, compare) { // binary search, with custom compare function
-    var l = 0,
-        r = arr.length - 1;
-    while (l <= r) {
-        var m = l + ((r - l) >> 1);
-        var comp = compare(arr[m]);
-        if (comp < 0) // arr[m] comes before the element
-            l = m + 1;
-        else if (comp > 0) // arr[m] comes after the element
-            r = m - 1;
-        else // arr[m] equals the element
-            return m;
-    }
-    return l-1; // return the index of the next left item
-                // usually you would just return -1 in case nothing is found
+  var l = 0,
+    r = arr.length - 1;
+  while (l <= r) {
+    var m = l + ((r - l) >> 1);
+    var comp = compare(arr[m]);
+    if (comp < 0) // arr[m] comes before the element
+      l = m + 1;
+    else if (comp > 0) // arr[m] comes after the element
+      r = m - 1;
+    else // arr[m] equals the element
+      return m;
+  }
+  return l-1; // return the index of the next left item
+              // usually you would just return -1 in case nothing is found
 }

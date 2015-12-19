@@ -18,8 +18,8 @@
   padding-left: 0;
 }
 
-.row {
-  margin-top:20px;
+.input-row {
+  margin-bottom:20px;
 }
 
 .mg-lg-spacer {
@@ -29,6 +29,28 @@
   height: 60px;
 }
 
+#resistor-value{
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
 hr {
   border-color: #ccc;
+}
+
+header {
+  margin-bottom:35px;
+}
+
+.sig {
+  padding-bottom: 20px;
+}
+
+body {
+  background-color: rgb(44, 44, 44);
+  color: #E4E4E4;
+}
+
+#resistor-tool{
+  margin-bottom:35px;
 }
