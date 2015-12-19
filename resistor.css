@@ -52,5 +52,9 @@ body {
 }
 
 #resistor-tool{
-  margin-bottom:35px;
+  margin-bottom:30px;
+}
+
+h1 {
+  font-size:38px;
 }
