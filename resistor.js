@@ -16,6 +16,7 @@ $(function(){
 
   $('.color-selector').on('change', function(e){
     copySelectColorStyles(this);
+    $('#input-parse-details').addClass('hide')
     var colorValue = calculateValueFromColorValues($('#band1').val(), $('#band2').val(), $('#multiplier').val())
     var resistorString = resistanceFloatToValueString(colorValue)
     $('#resistor-value').val(resistorString + " \u00B1" + $('#tolerance').val() + "%")
@@ -34,9 +35,25 @@ $(function(){
   var placeholderValue = getPlaceholderValue()
   $('#resistor-value').val(placeholderValue)
   $('#resistor-form').trigger('submit')
+
+  $('#show-details').on('click', function(e){
+    e.preventDefault()
+    $('.details').slideDown();
+    $('#hide-details').removeClass('hide')
+    $(this).addClass('hide')
+  })
+
+  $('#hide-details').on('click', function(e){
+    e.preventDefault()
+    $('.details').slideUp();
+    $('#show-details').removeClass('hide')
+    $(this).addClass('hide')
+  })
 });
 
 var update = function(resistorFieldVal){
+  $('#input-parse-details').removeClass('hide')
+  $('#ipt').html(resistorFieldVal)
   var resistorFloat = parseResistorStringToFloat(resistorFieldVal)
   if (resistorFloat > 99000000){
     alert("Values greater than 99M are not supported")
@@ -61,8 +78,9 @@ var roundToleranceDown = function(tolerance){
 var valueStringToDropdownValues = function(resistorFloat, valueString){
   var resistanceString = resistanceFloatToValueString(resistorFloat)
 
-  var band1 = resistanceString.match(/\d/g)[0]
-  var band2 = resistanceString.match(/\d/g)[1] || 0
+  var bandString = resistanceString.replace(/^0+\.+/, '')
+  var band1 = bandString.match(/\d/g)[0]
+  var band2 = bandString.match(/\d/g)[1] || 0
 
   var multiplierChar = (resistanceString.match(/[kKmM]/) || ['r'])[0].toLowerCase()
   switch (multiplierChar) {
@@ -76,14 +94,16 @@ var valueStringToDropdownValues = function(resistorFloat, valueString){
       var multiplier = 1
   }
   multiplier = multiplier.toString() + (resistanceString.match(/0/g) || []).join('')
+
+  // bunch of hacky manipulations to the multiplier 
   if (resistanceString.match(/[.]/) || resistorFloat < 10){
     multiplier = multiplier / 10
   }
   if (resistorFloat < 1){
+    multiplier = multiplier / 100
+  }
+  if ((resistorFloat >= 10) && (band2 == 0)) {
     multiplier = multiplier / 10
-    var tmp = band1
-    band1 = band2
-    band2 = tmp
   }
 
   var toleranceString = valueString.match(/[0-9.]+\s*%/g)
@@ -122,7 +142,9 @@ var parseResistorStringToFloat = function(resistorString){
   }
   // we need to santitize to float to a realistic resitor value, IE not 1002 ohms.
   var santitizedString = sanitizeResistorFloat(resistorFloat)
-  console.log('input parsed as '+resistorFloat+' sanitized to '+santitizedString)
+  // console.log('input parsed as '+resistorFloat+' sanitized to '+santitizedString)
+  $('#vpa').html(resistorFloat)
+  $('#vst').html(santitizedString)
   return santitizedString
 }
 
@@ -131,7 +153,7 @@ var sanitizeResistorFloat = function(resistorFloat){
   var santitizedString = '';
   for (var i = 0; i < resistorFloatString.length; i++) {
     var digit = resistorFloatString.charAt(i)
-    if ((santitizedString.match(/[0-9]/g) || []).length < 2) {
+    if ((santitizedString.match(/[0-9]/g) || []).length < (resistorFloat < 1 ? 3 : 2)) {
       santitizedString += digit
     } else if (digit.match(/[0-9]/g)) {
       santitizedString += '0'

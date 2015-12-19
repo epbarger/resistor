@@ -56,5 +56,23 @@ body {
 }
 
 h1 {
-  font-size:38px;
+  font-size:39px;
+  margin-bottom:0px;
+}
+
+#signature-column{
+  margin-top:25px;
+}
+
+.details{
+  display:none;
+  margin-top:10px;
+}
+
+p {
+  margin:0;
+}
+
+.details span{
+  color: #868686;
 }

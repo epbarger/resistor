@@ -20,6 +20,7 @@
     <div class='container'>
       <header>
         <h1>Resistor Calculator</h1>
+        basic 4 band code calculator
       </header>
 
       <div id='resistor-tool'>
@@ -98,11 +99,31 @@
         </div>
       </div>
 
-      <footer>
-        <div class='pull-right sig'>
-          <h5> by <a href='https://www.github.com/epbarger'>epbarger</a> </h5>
+      <a id='show-details' href='#'>▼ show details</a>
+      <a id='hide-details' class='hide' href='#'>▲ hide details</a>
+
+      <div class='pull-right sig hidden-sm hidden-xs'>
+        by <a href='https://www.github.com/epbarger'>epbarger</a>
+      </div>
+
+      <div class='row'>
+        <div class='col-md-8 details'>
+          <div id='input-parse-details'>
+            <p>form input: <span class='detail-span' id='ipt'></span></p>
+            <p>value parsed as: <span class='detail-span' id='vpa'></span></p>
+            <p>value sanitized to: <span class='detail-span' id='vst'></span></p>
+          </div>
+          <p>nearest e12 series: <span class='detail-span' id='ne12'>coming soon</span></p>
+          <p>nearest e24 series: <span class='detail-span' id='ne24'>coming soon</span></p>
         </div>
-      </footer>
+
+        <div class='col-md-4 hidden-md hidden-lg' id='signature-column'>
+          <div class='pull-right sig'>
+            by <a href='https://www.github.com/epbarger'>epbarger</a>
+          </div>
+        </div>
+      </div>
+
 
     </div>
   </body>
