@@ -5,7 +5,14 @@ jQuery.fn.center = function () {
   return this;
 }
 
+window.errorDisplayedOnThisInput = false
+
 $(function(){
+
+  $('#resistor-form').on('keyup', function(e){
+    window.errorDisplayedOnThisInput = false
+  })
+
   $('.container').center()
 
   $(window).resize(function(){
@@ -16,7 +23,6 @@ $(function(){
 
   $('.color-selector').on('change', function(e){
     copySelectColorStyles(this);
-    $('#input-parse-details').addClass('hide')
     var colorValue = calculateValueFromColorValues($('#band1').val(), $('#band2').val(), $('#multiplier').val())
     var resistorString = resistanceFloatToValueString(colorValue)
     $('#resistor-value').val(resistorString + " \u00B1" + $('#tolerance').val() + "%")
@@ -35,30 +41,16 @@ $(function(){
   var placeholderValue = getPlaceholderValue()
   $('#resistor-value').val(placeholderValue)
   $('#resistor-form').trigger('submit')
-
-  $('#show-details').on('click', function(e){
-    e.preventDefault()
-    $('.details').slideDown();
-    $('#hide-details').removeClass('hide')
-    $(this).addClass('hide')
-  })
-
-  $('#hide-details').on('click', function(e){
-    e.preventDefault()
-    $('.details').slideUp();
-    $('#show-details').removeClass('hide')
-    $(this).addClass('hide')
-  })
 });
 
 var update = function(resistorFieldVal){
-  $('#input-parse-details').removeClass('hide')
-  $('#ipt').html(resistorFieldVal)
-  var resistorFloat = parseResistorStringToFloat(resistorFieldVal)
-  if (resistorFloat > 99000000){
-    alert("Values greater than 99M are not supported")
+  var parsedValues = parseResistorStringToFloat(resistorFieldVal)
+  var resistorFloat = parsedValues[0]
+
+  if (resistorFloat > 990000000){
+    displayError("Values greater than 990M are not supported")
   } else if (resistorFloat < 0.1){
-    alert("Values less than 0.1 are not supported")
+    displayError("Values less than 0.1 are not supported")
   } else {
     var dropdownValues = valueStringToDropdownValues(resistorFloat, resistorFieldVal)
     $('#band1').val(dropdownValues[0])
@@ -69,10 +61,17 @@ var update = function(resistorFieldVal){
   }
 }
 
+var displayError = function(msg){
+  if (window.errorDisplayedOnThisInput === false){
+    alert(msg)
+    window.errorDisplayedOnThisInput = true
+  }
+}
+
 var roundToleranceDown = function(tolerance){
   var values = $("#tolerance option").map(function() {return $(this).val()}).get().reverse()
   var i = index(values, function(x){ return x - tolerance })
-  return values[i]
+  return values[i] || 5
 }
 
 var valueStringToDropdownValues = function(resistorFloat, valueString){
@@ -114,8 +113,8 @@ var valueStringToDropdownValues = function(resistorFloat, valueString){
     } else {
       tolerance = roundToleranceDown(tolerance)
     }
-  } else {
-    var tolerance = '20'
+  } else { // default tolerance to 5 because in my experience that is the most common
+    var tolerance = '5'
   }
 
   return [band1, band2, multiplier, tolerance]
@@ -143,9 +142,7 @@ var parseResistorStringToFloat = function(resistorString){
   // we need to santitize to float to a realistic resitor value, IE not 1002 ohms.
   var santitizedString = sanitizeResistorFloat(resistorFloat)
   // console.log('input parsed as '+resistorFloat+' sanitized to '+santitizedString)
-  $('#vpa').html(resistorFloat)
-  $('#vst').html(santitizedString)
-  return santitizedString
+  return [santitizedString, resistorFloat]
 }
 
 var sanitizeResistorFloat = function(resistorFloat){
@@ -173,6 +170,7 @@ var copySelectColorStyles = function(){
 }
 
 var calculateValueFromColorValues = function(color1, color2, multiplier){
+  var baseValue = parseInt(color1) * 10 + parseInt(color2)
   return ((parseInt(color1) * 10) + parseInt(color2)) * multiplier
 }
 
@@ -195,12 +193,17 @@ var resistanceFloatToValueString = function(resistorFloat){
       case 5:
         if (valueString.length > 6){
           valueString = (resistorFloat / 1000000).toString() + 'M'
-        } 
+        } else {
+          valueString = (resistorFloat / 1000).toString() + 'K'
+        }
         break
       case 6:
         valueString = (resistorFloat / 1000000).toString() + 'M'
         break
       case 7:
+        valueString = (resistorFloat / 1000000).toString() + 'M'
+        break
+      case 8:
         valueString = (resistorFloat / 1000000).toString() + 'M'
         break
     }
@@ -209,7 +212,7 @@ var resistanceFloatToValueString = function(resistorFloat){
 }
 
 var getPlaceholderValue = function(){
-  placeholderValues = ["9.1K \u00B15%","4.4 \u00B11%","200 \u00B15%","8.1M \u00B110%","27K \u00B15%","1.2K \u00B15%","8.3K \u00B15%", "0.2 \u00B10.5%"]
+  placeholderValues = ["9.1K \u00B15%","4.4 \u00B110%","200 \u00B15%","8.1M \u00B110%","27K \u00B15%","1.2K \u00B15%","8.3K \u00B15%", "0.2 \u00B15%"]
   return placeholderValues[Math.floor(Math.random()*placeholderValues.length)]
 }
 
