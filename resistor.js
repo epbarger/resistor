@@ -74,7 +74,7 @@ var update = function(resistorFieldVal){
     $('#tolerance').val(dropdownValues[3])
     copySelectColorStyles()
 
-    $('#sanitized-value').text(resistanceFloatToValueString(resistorFloat))
+    $('#sanitized-value').text(resistanceFloatToValueString(resistorFloat) + " \u2126")
     $('#details-string').animate({width:'show'},140);
   }
 }
