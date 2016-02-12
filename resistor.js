@@ -6,6 +6,9 @@ jQuery.fn.center = function () {
 }
 
 window.errorDisplayedOnThisInput = false
+e24Array = [10,11,12,13,15,16,18,20,22,24,27,30,33,36,39,43,47,51,56,62,68,75,82,91]
+e12Array = [10,12,15,18,22,27,33,39,47,56,68,82]
+e6Array = [10,15,22,33,47,68]
 
 $(function(){
 
@@ -26,6 +29,7 @@ $(function(){
     var colorValue = calculateValueFromColorValues($('#band1').val(), $('#band2').val(), $('#multiplier').val())
     var resistorString = resistanceFloatToValueString(colorValue)
     $('#resistor-value').val(resistorString + " \u00B1" + $('#tolerance').val() + "%")
+    assignDropdownArrowColor(this)
   });
 
   $('#resistor-value').on('change', function(e){
@@ -41,7 +45,17 @@ $(function(){
   var placeholderValue = getPlaceholderValue()
   $('#resistor-value').val(placeholderValue)
   $('#resistor-form').trigger('submit')
+
+  $('.color-selector').each(function(e){
+    assignDropdownArrowColor(this)
+  })
 });
+
+var assignDropdownArrowColor = function(dropdown){
+  $dropdown = $(dropdown)
+  color = $dropdown.css('color')
+  $dropdown.siblings('.dropdown-arrow').css('color', color)
+}
 
 var update = function(resistorFieldVal){
   var parsedValues = parseResistorStringToFloat(resistorFieldVal)

@@ -34,6 +34,15 @@
   border-bottom-left-radius: 4px;
 }
 
+.dropdown-arrow{
+  position: absolute;
+  top: 17px;
+  font-size: 18px;
+  right: 10px;
+  color: white;
+  pointer-events: none;
+}
+
 hr {
   border-color: #ccc;
 }
@@ -70,9 +79,15 @@ h1 {
 }
 
 p {
-  margin:0;
+  margin: 0px 0px 7px;
 }
 
 .details span{
   color: #868686;
+}
+
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 }

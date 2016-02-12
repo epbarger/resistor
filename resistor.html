@@ -17,12 +17,13 @@
     <title>ResistorCalc.net</title>
     <meta name="description" content="Mobile friendly four band resistor calculator for hobbyists and professionals"/>
     <meta name="keywords" content="resistor calculator, resister calculator, resistor, resister, resistor color, resistor color code, resistor color bands"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   </head>
   <body>
     <div class='container'>
       <header>
         <h1>ResistorCalc.net</h1>
-        basic 4 band code calculator (<a href="http://www.allaboutcircuits.com/textbook/reference/chpt-2/resistor-color-codes/">?</a>)
+        basic 4 band code calculator(<a href="http://www.allaboutcircuits.com/textbook/reference/chpt-2/resistor-color-codes/">?</a>)
       </header>
 
       <div id='resistor-tool'>
@@ -33,12 +34,14 @@
                 <input type="text" class="form-control input-superlg" id='resistor-value'>
               </form>
               <span class="input-group-addon input-superlg">&#937;</span>
+
             </div>
           </div>
         </div>
 
         <div class='row no-gutters'>
           <div class='col-md-3'>
+            <div class='dropdown-arrow'> ▼ </div>
             <select class="form-control input-verylg color-selector" id="band1">
               <option value='1' selected="selected" style='background-color:brown; color:white;'>Brown (1)</option>
               <option value='2' style='background-color:red; color:white;'>Red (2)</option>
@@ -52,6 +55,7 @@
             </select>
           </div>
           <div class='col-md-3'>
+            <div class='dropdown-arrow'> ▼ </div>
             <select class="form-control input-verylg color-selector" id="band2">
               <option value='0' selected="selected" style='background-color:black; color:white;'>Black (0)</option>
               <option value='1' style='background-color:brown; color:white;'>Brown (1)</option>
@@ -66,6 +70,7 @@
             </select>
           </div>
           <div class='col-md-3'>
+            <div class='dropdown-arrow'> ▼ </div>
             <select class="form-control input-verylg color-selector" id="multiplier">
               <option value='0.01' style='background-color:silver; color:white;'>Silver (0.01)</option>
               <option value='0.1' style='background-color:gold; color:#333;'>Gold (0.1)</option>
@@ -86,16 +91,11 @@
             <hr>
           </div>
           <div class='col-md-2'>
+            <div class='dropdown-arrow'> ▼ </div>
             <select class="form-control input-verylg color-selector" id="tolerance">
               <option value='20' style='background-color:white; color:#333;'>&#177;20%</option>
               <option value='10' style='background-color:silver; color:white;'>&#177;10%</option>
               <option value='5' style='background-color:gold; color:#333;'>&#177;5%</option>
-<!--               <option value='2' style='background-color:red; color:white;'>&#177;2%</option>
-              <option value='1' style='background-color:brown; color:white;'>&#177;1%</option>
-              <option value='0.5' style='background-color:green; color:white;'>&#177;0.5%</option>
-              <option value='0.25' style='background-color:blue; color:white;'>&#177;0.25%</option>
-              <option value='0.1' style='background-color:purple; color:white;'>&#177;0.1%</option>
-              <option value='0.05' style='background-color:grey; color:white;'>&#177;0.05%</option> -->
             </select>
           </div>
         </div>
