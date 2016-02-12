@@ -43,6 +43,11 @@
   pointer-events: none;
 }
 
+#details-string{
+  float:left;
+  font-style: italic;
+}
+
 hr {
   border-color: #ccc;
 }

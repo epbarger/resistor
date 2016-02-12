@@ -29,6 +29,7 @@ $(function(){
     var colorValue = calculateValueFromColorValues($('#band1').val(), $('#band2').val(), $('#multiplier').val())
     var resistorString = resistanceFloatToValueString(colorValue)
     $('#resistor-value').val(resistorString + " \u00B1" + $('#tolerance').val() + "%")
+    $('#details-string').animate({width:'hide'},140);
     assignDropdownArrowColor(this)
   });
 
@@ -72,6 +73,9 @@ var update = function(resistorFieldVal){
     $('#multiplier').val(dropdownValues[2])
     $('#tolerance').val(dropdownValues[3])
     copySelectColorStyles()
+
+    $('#sanitized-value').text(resistanceFloatToValueString(resistorFloat))
+    $('#details-string').animate({width:'show'},140);
   }
 }
 
