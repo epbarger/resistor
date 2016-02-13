@@ -29,7 +29,7 @@ $(function(){
     var colorValue = calculateValueFromColorValues($('#band1').val(), $('#band2').val(), $('#multiplier').val())
     var resistorString = resistanceFloatToValueString(colorValue)
     $('#resistor-value').val(resistorString + " \u00B1" + $('#tolerance').val() + "%")
-    $('#details-string').animate({width:'hide'},140);
+    $('#details-string').fadeOut(300)
     assignDropdownArrowColor(this)
   });
 
@@ -42,10 +42,6 @@ $(function(){
     update($('#resistor-value').val())
     if (document.activeElement != document.body) document.activeElement.blur();
   });
-
-  var placeholderValue = getPlaceholderValue()
-  $('#resistor-value').val(placeholderValue)
-  $('#resistor-form').trigger('submit')
 
   $('.color-selector').each(function(e){
     assignDropdownArrowColor(this)
@@ -74,8 +70,12 @@ var update = function(resistorFieldVal){
     $('#tolerance').val(dropdownValues[3])
     copySelectColorStyles()
 
-    $('#sanitized-value').text(resistanceFloatToValueString(resistorFloat) + " \u2126")
-    $('#details-string').animate({width:'show'},140);
+    $('.color-selector').each(function(e){
+      assignDropdownArrowColor(this)
+    })
+
+    $('#sanitized-value').text(resistanceFloatToValueString(resistorFloat))
+    $('#details-string').fadeIn(300)
   }
 }
 
@@ -227,10 +227,6 @@ var resistanceFloatToValueString = function(resistorFloat){
     }
   }
   return valueString
-}
-
-var getPlaceholderValue = function(){
-  return "4.7K \u00B15%"
 }
 
 // binary search ripped from http://stackoverflow.com/questions/15203994/finding-the-closest-number-downward-to-a-different-number-from-an-array

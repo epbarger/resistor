@@ -44,8 +44,11 @@
 }
 
 #details-string{
-  float:left;
-  font-style: italic;
+  font-size: 10px;
+  position: absolute;
+  right: 15px;
+  z-index: 2;
+  display:none;
 }
 
 hr {
@@ -53,7 +56,7 @@ hr {
 }
 
 header {
-  margin-bottom:35px;
+  margin-bottom:25px;
 }
 
 .sig {
@@ -66,7 +69,7 @@ body {
 }
 
 #resistor-tool{
-  margin-bottom:30px;
+  margin-bottom:25px;
 }
 
 h1 {
