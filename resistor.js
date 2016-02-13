@@ -230,8 +230,7 @@ var resistanceFloatToValueString = function(resistorFloat){
 }
 
 var getPlaceholderValue = function(){
-  placeholderValues = ["9.1K \u00B15%","4.4 \u00B110%","200 \u00B15%","8.1M \u00B110%","27K \u00B15%","1.2K \u00B15%","8.3K \u00B15%", "0.2 \u00B15%"]
-  return placeholderValues[Math.floor(Math.random()*placeholderValues.length)]
+  return "4.7K \u00B15%"
 }
 
 // binary search ripped from http://stackoverflow.com/questions/15203994/finding-the-closest-number-downward-to-a-different-number-from-an-array
