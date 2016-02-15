@@ -98,4 +98,9 @@ select {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
+  touch-action: manipulation;
+}
+
+input {
+  touch-action: manipulation;
 }

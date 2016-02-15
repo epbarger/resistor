@@ -11,16 +11,16 @@ e12Array = [10,12,15,18,22,27,33,39,47,56,68,82]
 e6Array = [10,15,22,33,47,68]
 
 $(function(){
-
   $('#resistor-form').on('keyup', function(e){
     window.errorDisplayedOnThisInput = false
   })
 
-  $('.container').center()
-
-  $(window).resize(function(){
+  if ($(window).height() >= $(document).height()) {
     $('.container').center()
-  })
+    $(window).resize(function(){
+      $('.container').center()
+    })
+  }
 
   copySelectColorStyles()
 
