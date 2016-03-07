@@ -104,3 +104,7 @@ select {
 input {
   touch-action: manipulation;
 }
+
+.btn-link{
+  padding: 5px;
+}

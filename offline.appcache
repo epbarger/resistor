@@ -3,10 +3,12 @@ CACHE MANIFEST
 CACHE:
 resistor.css
 resistor.js
+wiring.js
+polyfill.js
 https://code.jquery.com/jquery-1.11.2.min.js
 https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css
 
 NETWORK:
 *
 
-# v24
+# v25

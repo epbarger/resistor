@@ -1,248 +1,222 @@
-jQuery.fn.center = function () {
-  this.css("position","absolute");
-  this.css("top", Math.max(0, (($(window).height() - $(this).outerHeight()) / 2) + $(window).scrollTop()) + "px");
-  this.css("left", Math.max(0, (($(window).width() - $(this).outerWidth()) / 2) + $(window).scrollLeft()) + "px");
-  return this;
+var E12Base = [0.10, 0.12, 0.15, 0.18, 0.22, 0.27, 0.33, 0.39, 0.47, 0.56, 0.68, 0.82]
+var E24Base = [0.10, 0.11, 0.12, 0.13, 0.15, 0.16, 0.18, 0.20, 0.22, 0.24, 0.27, 0.30, 0.33, 0.36, 0.39, 0.43, 0.47, 0.51, 0.56, 0.62, 0.68, 0.75, 0.82, 0.91]
+var E48Base = [0.100, 0.105, 0.110, 0.115, 0.121, 0.127, 0.133, 0.140, 0.147, 0.154, 0.162, 0.169, 0.178, 0.187, 0.196, 0.205, 0.215, 0.226, 0.237, 0.249,
+               0.261, 0.274, 0.287, 0.301, 0.316, 0.332, 0.348, 0.365, 0.383, 0.402, 0.422, 0.442, 0.464, 0.487, 0.511, 0.536, 0.562, 0.590, 0.619, 0.649,
+               0.681, 0.715, 0.750, 0.787, 0.825, 0.866, 0.909, 0.953]
+var E96Base = [0.100, 0.102, 0.105, 0.107, 0.110, 0.113, 0.115, 0.118, 0.121, 0.124, 0.127, 0.130, 0.133, 0.137, 0.140, 0.143, 0.147, 0.150, 0.154, 0.158,
+               0.162, 0.165, 0.169, 0.174, 0.178, 0.182, 0.187, 0.191, 0.196, 0.200, 0.205, 0.210, 0.216, 0.221, 0.226, 0.232, 0.237, 0.243, 0.249, 0.255,
+               0.261, 0.267, 0.274, 0.280, 0.287, 0.294, 0.301, 0.309, 0.316, 0.324, 0.332, 0.340, 0.348, 0.357, 0.365, 0.374, 0.383, 0.392, 0.402, 0.412,
+               0.422, 0.432, 0.442, 0.453, 0.464, 0.475, 0.487, 0.499, 0.511, 0.523, 0.536, 0.549, 0.562, 0.576, 0.590, 0.604, 0.619, 0.634, 0.649, 0.665,
+               0.681, 0.698, 0.715, 0.732, 0.750, 0.768, 0.787, 0.806, 0.825, 0.845, 0.866, 0.887, 0.909, 0.931, 0.953, 0.976]
+
+var generateStandardSeries = function(seriesArray) {
+  var output = []
+  var multipliers = [1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000]
+  for (var i = 0; i < multipliers.length; i++) {
+    output = output.concat( seriesArray.map(function(val){ return Math.round(multipliers[i] * val * 10000) / 10000 }) )
+  }
+  // output.push(100000000) // add in 10M
+  return output
 }
 
-window.errorDisplayedOnThisInput = false
-e24Array = [10,11,12,13,15,16,18,20,22,24,27,30,33,36,39,43,47,51,56,62,68,75,82,91]
-e12Array = [10,12,15,18,22,27,33,39,47,56,68,82]
-e6Array = [10,15,22,33,47,68]
+E12 = generateStandardSeries(E12Base)
+E24 = generateStandardSeries(E24Base)
+E48 = generateStandardSeries(E48Base)
+E96 = generateStandardSeries(E96Base)
 
-$(function(){
-  $('#resistor-form').on('keyup', function(e){
-    window.errorDisplayedOnThisInput = false
-  })
+// precompute search values that are used in the closestRealValue function
+var SearchValues = [E12,
+                    [].concat(E12, E24).sort(function(a, b){return a-b}),
+                    [].concat(E12, E24, E48).sort(function(a, b){return a-b}),
+                    [].concat(E12, E24, E48, E96).sort(function(a, b){return a-b})]
 
-  if ($(window).height() >= $(document).height()) {
-    $('.container').center()
-    $(window).resize(function(){
-      $('.container').center()
-    })
-  }
-
-  copySelectColorStyles()
-
-  $('.color-selector').on('change', function(e){
-    copySelectColorStyles(this);
-    var colorValue = calculateValueFromColorValues($('#band1').val(), $('#band2').val(), $('#multiplier').val())
-    var resistorString = resistanceFloatToValueString(colorValue)
-    $('#resistor-value').val(resistorString + " \u00B1" + $('#tolerance').val() + "%")
-    $('#details-string').fadeOut(300)
-    assignDropdownArrowColor(this)
-  });
-
-  $('#resistor-value').on('change', function(e){
-    update($(this).val())
-  });
-
-  $('#resistor-form').on('submit', function(e){
-    e.preventDefault()
-    update($('#resistor-value').val())
-    if (document.activeElement != document.body) document.activeElement.blur();
-  });
-
-  $('.color-selector').each(function(e){
-    assignDropdownArrowColor(this)
-  })
-});
-
-var assignDropdownArrowColor = function(dropdown){
-  $dropdown = $(dropdown)
-  color = $dropdown.css('color')
-  $dropdown.siblings('.dropdown-arrow').css('color', color)
-}
-
-var update = function(resistorFieldVal){
-  var parsedValues = parseResistorStringToFloat(resistorFieldVal)
-  var resistorFloat = parsedValues[0]
-
-  if (resistorFloat > 990000000){
-    displayError("Values greater than 990M are not supported")
-  } else if (resistorFloat < 0.1){
-    displayError("Values less than 0.1 are not supported")
-  } else {
-    var dropdownValues = valueStringToDropdownValues(resistorFloat, resistorFieldVal)
-    $('#band1').val(dropdownValues[0])
-    $('#band2').val(dropdownValues[1])
-    $('#multiplier').val(dropdownValues[2])
-    $('#tolerance').val(dropdownValues[3])
-    copySelectColorStyles()
-
-    $('.color-selector').each(function(e){
-      assignDropdownArrowColor(this)
-    })
-
-    $('#sanitized-value').text(resistanceFloatToValueString(resistorFloat))
-    $('#details-string').fadeIn(300)
-  }
-}
-
-var displayError = function(msg){
-  if (window.errorDisplayedOnThisInput === false){
-    alert(msg)
-    window.errorDisplayedOnThisInput = true
-  }
-}
-
-var roundToleranceDown = function(tolerance){
-  var values = $("#tolerance option").map(function() {return $(this).val()}).get().reverse()
-  var i = index(values, function(x){ return x - tolerance })
-  return values[i] || 5
-}
-
-var valueStringToDropdownValues = function(resistorFloat, valueString){
-  var resistanceString = resistanceFloatToValueString(resistorFloat)
-
-  var bandString = resistanceString.replace(/^0+\.+/, '')
-  var band1 = bandString.match(/\d/g)[0]
-  var band2 = bandString.match(/\d/g)[1] || 0
-
-  var multiplierChar = (resistanceString.match(/[kKmM]/) || ['r'])[0].toLowerCase()
-  switch (multiplierChar) {
-    case 'k':
-      var multiplier = 1000
-      break
-    case 'm':
-      var multiplier = 1000000
-      break
-    default :
-      var multiplier = 1
-  }
-  multiplier = multiplier.toString() + (resistanceString.match(/0/g) || []).join('')
-
-  // bunch of hacky manipulations to the multiplier 
-  if (resistanceString.match(/[.]/) || resistorFloat < 10){
-    multiplier = multiplier / 10
-  }
-  if (resistorFloat < 1){
-    multiplier = multiplier / 100
-  }
-  if ((resistorFloat >= 10) && (band2 == 0)) {
-    multiplier = multiplier / 10
-  }
-
-  var toleranceString = valueString.match(/[0-9.]+\s*%/g)
-  if (toleranceString){
-    var tolerance = toleranceString[0].match(/[0-9.]+/g)[0]
-    if (tolerance < 0.05){
-      tolerance = '20'
-    } else {
-      tolerance = roundToleranceDown(tolerance)
+function findNearestNumericalMatch(arr, targetNumber){
+  var delta = null
+  var deltaIncreased = false
+  var i = 0
+  while(!deltaIncreased && i < arr.length){
+    deltaTmp = Math.abs(arr[i] - targetNumber)
+    if (delta == null || deltaTmp <= delta) {
+      delta = deltaTmp
+    } else if (deltaTmp > delta) {
+      return arr[i - 1]
     }
-  } else { // default tolerance to 5 because in my experience that is the most common
-    var tolerance = '5'
+    i++
   }
-
-  return [band1, band2, multiplier, tolerance]
+  return arr[i-1]
 }
 
-var parseResistorStringToFloat = function(resistorString){
-  var strippedString = resistorString.replace(/[0-9.]+\s*%/g, '')
+// not super happy with this parsing code but it seems to work consistently
+var parseResistorString = function(unparsedString){
+  // parse resistor value
+  var strippedString = unparsedString.replace(/[0-9.]+\s*%/g, '')
   strippedString = strippedString.replace(/[^0-9.rRkKmM]/g, '') // remove all whitespace and non r,k,m
   if (strippedString.indexOf('.') === -1){ // if no decimals
     strippedString = strippedString.replace(/[rRkKmM]/,'.') // replace the first letter with a decimal
-    var baseValue = parseFloat(strippedString.replace(/[^0-9.]/g, '')) // remove all letters and parse
-  } else {
-    var baseValue = parseFloat(strippedString.replace(/[^0-9.]/g, '')) // remove all letters and parse
   }
-  var multiplierString = resistorString.match(/[rRkKmM]/) || '' // find first letter or use a blank string
-  var resistorFloat = parseFloat(baseValue)
-  switch (multiplierString.toString().toLowerCase()) { // calculate the multiplier and return
-    case "k":
-      resistorFloat = resistorFloat * 1000
-      break
-    case "m":
-      resistorFloat = resistorFloat * 1000000
-      break
+  var value = parseFloat(strippedString.replace(/[^0-9.]/g, '')) // remove all letters and parse
+  var multiplierString = (unparsedString.match(/[rRkKmM]/g) || [''])[0].toUpperCase() // find first letter or use a blank string
+  if (multiplierString == 'K') {
+    value = value * 1000
+  } else if (multiplierString == 'M') {
+    value = value * 1000000
   }
-  // we need to santitize to float to a realistic resitor value, IE not 1002 ohms.
-  var santitizedString = sanitizeResistorFloat(resistorFloat)
-  // console.log('input parsed as '+resistorFloat+' sanitized to '+santitizedString)
-  return [santitizedString, resistorFloat]
+
+  // parse tolerance
+  var tolerance = null
+  var toleranceString = unparsedString.match(/[0-9.]+\s*%/g)
+  if (toleranceString){
+    tolerance = toleranceString[0].match(/[0-9.]+/g)[0]
+  }
+
+  return [value, tolerance]
 }
 
-var sanitizeResistorFloat = function(resistorFloat){
-  var resistorFloatString = resistorFloat.toString()
-  var santitizedString = '';
-  for (var i = 0; i < resistorFloatString.length; i++) {
-    var digit = resistorFloatString.charAt(i)
-    if ((santitizedString.match(/[0-9]/g) || []).length < (resistorFloat < 1 ? 3 : 2)) {
-      santitizedString += digit
-    } else if (digit.match(/[0-9]/g)) {
-      santitizedString += '0'
+var Resistor = function(value, tolerance, bands, maxSeries, useRealValues, fiveBand) {
+  var closestRealValue = function(value, maxSeries){
+    var seriesToSliceIndex = {E12: 1, E24: 2, E48: 3, E96: 4}
+    var sliceIndex = seriesToSliceIndex[maxSeries.toUpperCase()]
+    var allValues = SearchValues.slice(0, sliceIndex)[sliceIndex - 1]
+    return findNearestNumericalMatch(allValues, value)
+  }
+
+
+  var sanitizeValue = function(resistorFloat, fiveBand){
+    var resistorFloatString = resistorFloat.toString()
+    var santitizedString = '';
+    if (fiveBand == 'true'){ // I hate this stupid hack
+      var x = 4
     } else {
-      santitizedString += digit
+      var x = 3
+    }
+    for (var i = 0; i < resistorFloatString.length; i++) {
+      var digit = resistorFloatString.charAt(i)
+      if ((santitizedString.match(/[0-9]/g) || []).length < (resistorFloat < 1 ? x : x - 1)) {
+        santitizedString += digit
+      } else if (digit.match(/[0-9]/g)) {
+        santitizedString += '0'
+      } else {
+        santitizedString += digit
+      }
+    }
+    return parseFloat(santitizedString)
+  }
+
+  var earliestSeries = function(value) {
+    var searchTuples = [[E12, 'E12'], [E24, 'E24'], [E48, 'E48'], [E96, 'E96']]
+    for (var i = 0; i < searchTuples.length; i++){
+      if (searchTuples[i][0].indexOf(value) >= 0){
+        return searchTuples[i][1]
+      }
     }
   }
-  return parseFloat(santitizedString)
-}
 
-var copySelectColorStyles = function(){
-  $('.color-selector').each(function(){
-    $dropdown = $(this)
-    css = $dropdown.find(':selected').attr('style')
-    $dropdown.attr('style', css)
-  })
-}
-
-var calculateValueFromColorValues = function(color1, color2, multiplier){
-  var baseValue = parseInt(color1) * 10 + parseInt(color2)
-  return ((parseInt(color1) * 10) + parseInt(color2)) * multiplier
-}
-
-var resistanceFloatToValueString = function(resistorFloat){
-  var valueString = parseFloat(resistorFloat.toFixed(2)).toString()
-  if (resistorFloat > 1.0){
-    var numberOfZeroes = (valueString.match(/0/g) || []).length
-    switch (numberOfZeroes){
-      case 2:
-        if (valueString.length > 3){
-          valueString = (resistorFloat / 1000).toString() + 'K'
-        } 
-        break
-      case 3:
-        valueString = (resistorFloat / 1000).toString() + 'K'
-        break
-      case 4:
-        valueString = (resistorFloat / 1000).toString() + 'K'
-        break
-      case 5:
-        if (valueString.length > 6){
-          valueString = (resistorFloat / 1000000).toString() + 'M'
-        } else {
-          valueString = (resistorFloat / 1000).toString() + 'K'
-        }
-        break
-      case 6:
-        valueString = (resistorFloat / 1000000).toString() + 'M'
-        break
-      case 7:
-        valueString = (resistorFloat / 1000000).toString() + 'M'
-        break
-      case 8:
-        valueString = (resistorFloat / 1000000).toString() + 'M'
-        break
+  // returns user-provided tolerance if it's valid, otherwise returns the highest tolerance
+  var pickTolerance = function(value, tolerance, availableTolerances){
+    if (tolerance && (availableTolerances.indexOf(tolerance) >= 0)) { 
+      return tolerance
+    } else {
+      return availableTolerances[0]
     }
   }
-  return valueString
+
+  var getBands = function(value, tolerance, fiveBand){
+    var bands = []
+    var stringValue = value.toString();
+
+    // determine base value
+    var digitMatches = stringValue.replace(/0\./g,'').match(/[0-9]/g)
+    bands.push(digitMatches[0])
+    bands.push(digitMatches[1] || '0')
+    if (digitMatches[2] && digitMatches[2] != '0'){
+      bands.push(digitMatches[2])
+    }
+
+    // determine multiplier. this could be DRYd up a bit but I'm leaving it open for readability
+    if (bands.length == 3 || fiveBand == 'true') {
+      if (value >= 100) {
+        bands.push((Math.pow(10, stringValue.length - 3)).toString())
+      } else {
+        bands.push((Math.pow(10, Math.floor(value).toString().length - 3)).toString()) // 3 - number of digits to the decimal
+      }
+    } else {
+      if (value >= 10) {
+        bands.push((Math.pow(10, stringValue.length - 2)).toString())
+      } else if (value >= 1) {
+        bands.push((Math.pow(10, Math.floor(value).toString().length - 2)).toString()) // 2 - number of digits to the decimal
+      } else {
+        bands.push((Math.pow(10, -2)).toString())
+      }
+    }
+
+    // add tolerance
+    bands.push((tolerance || '').toString())
+
+    return bands;
+  }
+
+  var valueFromBands = function(bands){
+    var multiplier = parseFloat(bands[bands.length - 2])
+    var baseValueString = bands[0].toString() + bands[1].toString()
+    if (bands.length == 5) {
+      baseValueString = baseValueString + bands[2].toString()
+    }
+    return parseInt(baseValueString) * multiplier
+  }
+
+  maxSeries = maxSeries || 'E96'
+  useRealValues = useRealValues || 'true'
+  this.realValue = useRealValues == 'true'
+  fiveBand = fiveBand || 'false'
+  if (value) {
+    if (value < 0.1 || value > 1000000000) {
+      alert('Unsupported value')
+      throw('Unsupported value.')
+    }
+    if (useRealValues == 'true') {
+      this.value = closestRealValue(value, maxSeries)
+      this.series = earliestSeries(this.value)
+      this.tolerance = pickTolerance(this.value, tolerance, this.availableTolerances())
+    } else {
+      this.value = sanitizeValue(value, fiveBand)
+      this.tolerance = tolerance
+    }
+    this.bands = getBands(this.value, this.tolerance, fiveBand)
+  } else if (bands) {
+    this.value = valueFromBands(bands)
+    this.series = earliestSeries(this.value)
+    this.tolerance = bands[bands.length - 1]
+    this.bands = getBands(this.value, this.tolerance, fiveBand)
+  } else {
+    throw('Could not initialize.')
+  }
 }
 
-// binary search ripped from http://stackoverflow.com/questions/15203994/finding-the-closest-number-downward-to-a-different-number-from-an-array
-function index(arr, compare) { // binary search, with custom compare function
-  var l = 0,
-    r = arr.length - 1;
-  while (l <= r) {
-    var m = l + ((r - l) >> 1);
-    var comp = compare(arr[m]);
-    if (comp < 0) // arr[m] comes before the element
-      l = m + 1;
-    else if (comp > 0) // arr[m] comes after the element
-      r = m - 1;
-    else // arr[m] equals the element
-      return m;
+Resistor.prototype.availableTolerances = function() {
+  var tolerances = []
+  if (this.realValue){
+    var searchTuples = [[E12, '10'], [E24, '5'], [E48, '2'], [E96,'1']]
+    for (var i = 0; i < searchTuples.length; i++){
+      if (searchTuples[i][0].indexOf(this.value) >= 0){
+        tolerances.push(searchTuples[i][1])
+      }
+    }
+  } else {
+    tolerances = ['10', '5', '2', '1']
   }
-  return l-1; // return the index of the next left item
-              // usually you would just return -1 in case nothing is found
+  return tolerances
+}
+
+Resistor.prototype.getValueString = function(){
+  var valueString = this.value.toString()
+  var digitsUntilDecimal = valueString.match(/[0-9]+/g)[0].length
+  if (digitsUntilDecimal <= 3){
+    return valueString
+  } else if (digitsUntilDecimal >= 4 && digitsUntilDecimal <= 6) {
+    var formattedString = valueString.slice(0,digitsUntilDecimal-3) + '.' + valueString.slice(digitsUntilDecimal-3).replace(/0{1,3}$/, '')
+    return formattedString.replace(/\.$/, '') + 'k'
+  } else {
+    var formattedString = valueString.slice(0,digitsUntilDecimal-6) + '.' + valueString.slice(digitsUntilDecimal-6).replace(/0{1,6}$/, '')
+    return formattedString.replace(/\.$/, '') + 'M'
+  }
 }

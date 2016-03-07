@@ -10,7 +10,9 @@
 
     <!-- Resistor -->
     <link rel="stylesheet" href="resistor.css">
+    <script src="polyfill.js"></script>
     <script src="resistor.js"></script>
+    <script src="wiring.js"></script>
 
     <title>ResistorCalc.net</title>
     <meta name="description" content="Mobile friendly four band resistor calculator for hobbyists and professionals"/>
@@ -39,68 +41,134 @@
     <div class='container'>
       <header>
         <h1>ResistorCalc.net</h1>
+        settings [
+        <button id='band-mode' type="button" class="btn btn-sm btn-link" data-mode='4band'>Mode: 4 Band</button>
+        <button id='parse-mode' type='button' class='btn btn-sm btn-link' data-mode='real'>Parsing: Real Values</button>
+        ]
         <!-- four band code calculator(<a href="http://www.allaboutcircuits.com/textbook/reference/chpt-2/resistor-color-codes/">?</a>) -->
       </header>
 
       <div id='resistor-tool'>
-        <div class='row input-row'>
-          <div class='col-xs-12'>
-            <div class="input-group">
-              <form id='resistor-form'>
-                <input type="text" class="form-control input-superlg" id='resistor-value' value='4.7K &#177; 5%'>
-              </form>
-              <span class="input-group-addon input-superlg">&#937;</span>
+        <form id='resistor-form'>
+          <div class='row input-row no-gutters'>
+            <div class='col-xs-12'>
+              <input type="text" class="form-control input-superlg" id='resistor-value' value='4.7K &#937;'>             
             </div>
-            <span id='details-string'>
-              interpreted as <span id='sanitized-value'></span>
-            </span>
           </div>
-        </div>
+        </form>
 
         <div class='row no-gutters'>
-          <div class='col-md-3'>
-            <div class='dropdown-arrow'> ▼ </div>
-            <select class="form-control input-verylg color-selector" id="band1">
-              <option value='1' style='background-color:brown; color:white;'>Brown (1)</option>
-              <option value='2' style='background-color:red; color:white;'>Red (2)</option>
-              <option value='3' style='background-color:orange; color:white;'>Orange (3)</option>
-              <option value='4' selected="selected" style='background-color:yellow; color:#333;'>Yellow (4)</option>
-              <option value='5' style='background-color:green; color:white;'>Green (5)</option>
-              <option value='6' style='background-color:blue; color:white;'>Blue (6)</option>
-              <option value='7' style='background-color:purple; color:white;'>Violet (7)</option>
-              <option value='8' style='background-color:grey; color:white;'>Grey (8)</option>
-              <option value='9' style='background-color:white; color:#333;'>White (9)</option>
-            </select>
-          </div>
-          <div class='col-md-3'>
-            <div class='dropdown-arrow'> ▼ </div>
-            <select class="form-control input-verylg color-selector" id="band2">
-              <option value='0' style='background-color:black; color:white;'>Black (0)</option>
-              <option value='1' style='background-color:brown; color:white;'>Brown (1)</option>
-              <option value='2' style='background-color:red; color:white;'>Red (2)</option>
-              <option value='3' style='background-color:orange; color:white;'>Orange (3)</option>
-              <option value='4' style='background-color:yellow; color:#333;'>Yellow (4)</option>
-              <option value='5' style='background-color:green; color:white;'>Green (5)</option>
-              <option value='6' style='background-color:blue; color:white;'>Blue (6)</option>
-              <option value='7' selected="selected" style='background-color:purple; color:white;'>Violet (7)</option>
-              <option value='8' style='background-color:grey; color:white;'>Grey (8)</option>
-              <option value='9' style='background-color:white; color:#333;'>White (9)</option>
-            </select>
-          </div>
-          <div class='col-md-3'>
-            <div class='dropdown-arrow'> ▼ </div>
-            <select class="form-control input-verylg color-selector" id="multiplier">
-              <option value='0.01' style='background-color:silver; color:white;'>Silver (0.01)</option>
-              <option value='0.1' style='background-color:gold; color:#333;'>Gold (0.1)</option>
-              <option value='1' style='background-color:black; color:white;'>Black (1)</option>
-              <option value='10' style='background-color:brown; color:white;'>Brown (10)</option>
-              <option value='100' selected="selected" style='background-color:red; color:white;'>Red (100)</option>
-              <option value='1000' style='background-color:orange; color:white;'>Orange (1,000)</option>
-              <option value='10000' style='background-color:yellow; color:#333;'>Yellow (10,000)</option>
-              <option value='100000' style='background-color:green; color:white;'>Green (100,000)</option>
-              <option value='1000000' style='background-color:blue; color:white;'>Blue (1,000,000)</option>
-              <option value='10000000' style='background-color:purple; color:white;'>Violet (10,000,000)</option>
-            </select>
+          <div class='col-md-9'>
+
+            <row id='4band' class='row no-gutters'>
+              <div class='col-md-4'>
+                <div class='dropdown-arrow'> ▼ </div>
+                <select class="form-control input-verylg color-selector band1">
+                  <option value='1' style='background-color:brown; color:white;'>Brown (1)</option>
+                  <option value='2' style='background-color:red; color:white;'>Red (2)</option>
+                  <option value='3' style='background-color:orange; color:white;'>Orange (3)</option>
+                  <option value='4' selected="selected" style='background-color:yellow; color:#333;'>Yellow (4)</option>
+                  <option value='5' style='background-color:green; color:white;'>Green (5)</option>
+                  <option value='6' style='background-color:blue; color:white;'>Blue (6)</option>
+                  <option value='7' style='background-color:purple; color:white;'>Violet (7)</option>
+                  <option value='8' style='background-color:grey; color:white;'>Grey (8)</option>
+                  <option value='9' style='background-color:white; color:#333;'>White (9)</option>
+                </select>
+              </div>
+              <div class='col-md-4'>
+                <div class='dropdown-arrow'> ▼ </div>
+                <select class="form-control input-verylg color-selector band2">
+                  <option value='0' style='background-color:black; color:white;'>Black (0)</option>
+                  <option value='1' style='background-color:brown; color:white;'>Brown (1)</option>
+                  <option value='2' style='background-color:red; color:white;'>Red (2)</option>
+                  <option value='3' style='background-color:orange; color:white;'>Orange (3)</option>
+                  <option value='4' style='background-color:yellow; color:#333;'>Yellow (4)</option>
+                  <option value='5' style='background-color:green; color:white;'>Green (5)</option>
+                  <option value='6' style='background-color:blue; color:white;'>Blue (6)</option>
+                  <option value='7' selected="selected" style='background-color:purple; color:white;'>Violet (7)</option>
+                  <option value='8' style='background-color:grey; color:white;'>Grey (8)</option>
+                  <option value='9' style='background-color:white; color:#333;'>White (9)</option>
+                </select>
+              </div>
+              <div class='col-md-4'>
+                <div class='dropdown-arrow'> ▼ </div>
+                <select class="form-control input-verylg color-selector multiplier">
+                  <option value='0.01' style='background-color:silver; color:white;'>Silver (0.01)</option>
+                  <option value='0.1' style='background-color:gold; color:#333;'>Gold (0.1)</option>
+                  <option value='1' style='background-color:black; color:white;'>Black (1)</option>
+                  <option value='10' style='background-color:brown; color:white;'>Brown (10)</option>
+                  <option value='100' selected="selected" style='background-color:red; color:white;'>Red (100)</option>
+                  <option value='1000' style='background-color:orange; color:white;'>Orange (1,000)</option>
+                  <option value='10000' style='background-color:yellow; color:#333;'>Yellow (10,000)</option>
+                  <option value='100000' style='background-color:green; color:white;'>Green (100,000)</option>
+                  <option value='1000000' style='background-color:blue; color:white;'>Blue (1,000,000)</option>
+                  <option value='10000000' style='background-color:purple; color:white;'>Violet (10,000,000)</option>
+                </select>
+              </div>
+            </row>
+
+            <row id='5band' class='row no-gutters' style='display:none'>
+              <div class='col-md-3'>
+                <div class='dropdown-arrow'> ▼ </div>
+                <select class="form-control input-verylg color-selector band1">
+                  <option value='1' style='background-color:brown; color:white;'>Brown (1)</option>
+                  <option value='2' style='background-color:red; color:white;'>Red (2)</option>
+                  <option value='3' style='background-color:orange; color:white;'>Orange (3)</option>
+                  <option value='4' selected="selected" style='background-color:yellow; color:#333;'>Yellow (4)</option>
+                  <option value='5' style='background-color:green; color:white;'>Green (5)</option>
+                  <option value='6' style='background-color:blue; color:white;'>Blue (6)</option>
+                  <option value='7' style='background-color:purple; color:white;'>Violet (7)</option>
+                  <option value='8' style='background-color:grey; color:white;'>Grey (8)</option>
+                  <option value='9' style='background-color:white; color:#333;'>White (9)</option>
+                </select>
+              </div>
+              <div class='col-md-3'>
+                <div class='dropdown-arrow'> ▼ </div>
+                <select class="form-control input-verylg color-selector band2">
+                  <option value='0' style='background-color:black; color:white;'>Black (0)</option>
+                  <option value='1' style='background-color:brown; color:white;'>Brown (1)</option>
+                  <option value='2' style='background-color:red; color:white;'>Red (2)</option>
+                  <option value='3' style='background-color:orange; color:white;'>Orange (3)</option>
+                  <option value='4' style='background-color:yellow; color:#333;'>Yellow (4)</option>
+                  <option value='5' style='background-color:green; color:white;'>Green (5)</option>
+                  <option value='6' style='background-color:blue; color:white;'>Blue (6)</option>
+                  <option value='7' selected="selected" style='background-color:purple; color:white;'>Violet (7)</option>
+                  <option value='8' style='background-color:grey; color:white;'>Grey (8)</option>
+                  <option value='9' style='background-color:white; color:#333;'>White (9)</option>
+                </select>
+              </div>
+              <div class='col-md-3'>
+                <div class='dropdown-arrow'> ▼ </div>
+                <select class="form-control input-verylg color-selector band3">
+                  <option value='0' style='background-color:black; color:white;'>Black (0)</option>
+                  <option value='1' style='background-color:brown; color:white;'>Brown (1)</option>
+                  <option value='2' style='background-color:red; color:white;'>Red (2)</option>
+                  <option value='3' style='background-color:orange; color:white;'>Orange (3)</option>
+                  <option value='4' style='background-color:yellow; color:#333;'>Yellow (4)</option>
+                  <option value='5' selected="selected" style='background-color:green; color:white;'>Green (5)</option>
+                  <option value='6' style='background-color:blue; color:white;'>Blue (6)</option>
+                  <option value='7' style='background-color:purple; color:white;'>Violet (7)</option>
+                  <option value='8' style='background-color:grey; color:white;'>Grey (8)</option>
+                  <option value='9' style='background-color:white; color:#333;'>White (9)</option>
+                </select>
+              </div>
+              <div class='col-md-3'>
+                <div class='dropdown-arrow'> ▼ </div>
+                <select class="form-control input-verylg color-selector multiplier">
+                  <option value='0.01' style='background-color:silver; color:white;'>Silver (0.01)</option>
+                  <option value='0.1' style='background-color:gold; color:#333;'>Gold (0.1)</option>
+                  <option value='1' style='background-color:black; color:white;'>Black (1)</option>
+                  <option value='10' style='background-color:brown; color:white;'>Brown (10)</option>
+                  <option value='100' selected="selected" style='background-color:red; color:white;'>Red (100)</option>
+                  <option value='1000' style='background-color:orange; color:white;'>Orange (1,000)</option>
+                  <option value='10000' style='background-color:yellow; color:#333;'>Yellow (10,000)</option>
+                  <option value='100000' style='background-color:green; color:white;'>Green (100,000)</option>
+                  <option value='1000000' style='background-color:blue; color:white;'>Blue (1,000,000)</option>
+                  <option value='10000000' style='background-color:purple; color:white;'>Violet (10,000,000)</option>
+                </select>
+              </div>
+            </row>
+
           </div>
           <div class='col-md-1 hidden-xs hidden-sm'>
             <div class='mg-lg-spacer'></div>
@@ -111,17 +179,20 @@
           <div class='col-md-2'>
             <div class='dropdown-arrow'> ▼ </div>
             <select class="form-control input-verylg color-selector" id="tolerance">
-              <option value='20' style='background-color:white; color:#333;'>&#177;20%</option>
               <option value='10' style='background-color:silver; color:white;'>&#177;10%</option>
               <option value='5' selected="selected" style='background-color:gold; color:#333;'>&#177;5%</option>
+              <option value='2' style='background-color:red; color:white; display:none;'>&#177;2%</option>
+              <option value='1' style='background-color:brown; color:white; display:none;'>&#177;1%</option>
             </select>
           </div>
         </div>
+
+
       </div>
 
-      <div class='pull-right sig'>
+<!--       <div class='pull-right sig'>
         by <a href='https://www.github.com/epbarger'>epbarger</a>
-      </div>
+      </div> -->
 
     </div>
   </body>
