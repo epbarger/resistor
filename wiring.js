@@ -1,9 +1,9 @@
 /*
 ToDo
  - fix javascript math
- - tolerance handling on the dropdown
  - make sure to show the right mode on start to match value.
    maybe move four or five band mode to hidden field so it persists?
+ - show status/details on current value?
 */
 
 jQuery.fn.center = function () {
@@ -41,11 +41,17 @@ var updateEverything = function(resistor) {
   $('.multiplier').val(resistor.bands[bandsLength-2])
 
   var tolerance = pickTolerance(resistor.availableTolerances(), $('#tolerance').val())
-  $('#tolerance').val(tolerance)
-  $("#tolerance option[value='10'], #tolerance option[value='5'], #tolerance option[value='2'], #tolerance option[value='1']").hide();
-  $.each(resistor.availableTolerances(), function(i, tol){
-    $("#tolerance option[value='" + tol + "']").show()
-  })
+  console.log(tolerance)
+  if (tolerance) {
+    $('#tolerance').val(tolerance)
+    $("#tolerance option[value='10'], #tolerance option[value='5'], #tolerance option[value='2'], #tolerance option[value='1']").hide();
+    $.each(resistor.availableTolerances(), function(i, tol){
+      $("#tolerance option[value='" + tol + "']").show()
+    })   
+  } else {
+    $("#tolerance option[value='10'], #tolerance option[value='5'], #tolerance option[value='2'], #tolerance option[value='1']").show();
+  }
+
 }
 
 var pickTolerance = function(availableTolerances, oldTolerance) {
@@ -63,7 +69,7 @@ var pickTolerance = function(availableTolerances, oldTolerance) {
 $(function(){
   window.resistorMode = '4band'
   window.resistorMaxSeries = 'E24'
-  window.resistorUseRealValues = 'true'
+  window.resistorUseRealValues = 'false'
   window.resistorForceFiveBand = 'false'
 
   // event binding
