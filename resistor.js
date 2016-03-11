@@ -179,7 +179,7 @@ var Resistor = function(value, tolerance, bands, maxSeries, useRealValues, fiveB
     } else {
       this.value = sanitizeValue(value, fiveBand)
       this.closestResistor = new Resistor(closestRealValue(this.value, maxSeries, fiveBand), tolerance, null, this.maxSeries, 'true', fiveBand)
-      this.tolerance = findNearestNumericalMatch([10, 5, 2, 1], parseInt(tolerance)).toString()
+      this.tolerance = tolerance ? findNearestNumericalMatch([10, 5, 2, 1], parseInt(tolerance)).toString() : null
     }
     this.bands = getBands(this.value, this.tolerance, fiveBand)
   } else if (bands) {

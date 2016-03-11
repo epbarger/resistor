@@ -27,7 +27,7 @@ var assignDropdownArrowColor = function(dropdown){
 
 var updateEverything = function(resistor) {
   console.log(resistor)
-  $('#resistor-value').val(resistor.getValueString() + '\u03A9 \u00B1' + resistor.tolerance + '%') // ohm \u03A9 plusminus \u00B1 // '\u00B1' + resistor.tolerance + '%'
+  $('#resistor-value').val(resistor.getValueString() + '\u03A9 \u00B1' + (resistor.tolerance ? resistor.tolerance : $('#tolerance').val()) + '%') // ohm \u03A9 plusminus \u00B1 // '\u00B1' + resistor.tolerance + '%'
   $('.band1').val(resistor.bands[0])
   $('.band2').val(resistor.bands[1])
   var bandsLength = resistor.bands.length
