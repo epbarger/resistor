@@ -50,8 +50,10 @@
           <div class='row input-row no-gutters'>
             <div class='col-xs-12'>
               <button id='band-mode' type="button" class="btn btn-sm btn-default" data-mode='4band' >Mode: 4 Band</button>    
-              <button id='real-value' type='button' class='btn btn-sm btn-default' style='opacity:0'></button>    
-              <input type="text" class="form-control input-superlg" id='resistor-value' value='4.7k&#937;'>         
+              <button id='real-value' type='button' class='btn btn-sm btn-default' style='display:none'></button>  
+              <span class='btn-sm pull-right' id='series'>Series: E24</span>  
+              <input type="text" class="form-control input-superlg" id='resistor-value' value='4.7k&#937;'>      
+              <input type="hidden" id='mode-store'>   
             </div>
           </div>
         </form>
@@ -196,9 +198,8 @@
         <strong> Features </strong>
         <ul>
           <li>Works for four and five band resistors</li>
-          <li>Shows the nearest standard value</li>
-          <li>Extremely mobile friendly</li>
-          <li>Works offline</li>
+          <li>Shows the nearest standard series value</li>
+          <li>Mobile friendly, works offline</li>
         </ul>
       </div>
     </div>

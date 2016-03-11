@@ -1,10 +1,6 @@
 /*
 ToDo
- - fix javascript math
- - make sure to show the right mode on start to match value.
-   maybe move four or five band mode to hidden field so it persists?
- - show status/details on current value?
- - investigate appcache not working
+  - ???
 */
 
 jQuery.fn.center = function () {
@@ -30,7 +26,7 @@ var assignDropdownArrowColor = function(dropdown){
 }
 
 var updateEverything = function(resistor) {
-  // console.log(resistor)
+  console.log(resistor)
   $('#resistor-value').val(resistor.getValueString() + '\u03A9 \u00B1' + resistor.tolerance + '%') // ohm \u03A9 plusminus \u00B1 // '\u00B1' + resistor.tolerance + '%'
   $('.band1').val(resistor.bands[0])
   $('.band2').val(resistor.bands[1])
@@ -63,11 +59,15 @@ var updateEverything = function(resistor) {
 
   if (resistor.closestResistor) {
     if ((resistor.value == resistor.closestResistor.value) && (resistor.closestResistor.availableTolerances().indexOf($('#tolerance').val()) > -1)) {
+      // $('#real-value').hide()
+      var seriesMap = { '10': 'E12', '5': 'E24', '2': 'E48', '1': 'E96'}
+      $('#series').text('Series: ' + seriesMap[$('#tolerance').val()]).show()
       $('#real-value').hide()
     } else {
+      $('#series').hide()
       var realTol = resistor.closestResistor.tolerance == '10' ? '5' : resistor.closestResistor.tolerance
       $('#real-value').attr('value', resistor.closestResistor.getValueString() + '\u03A9 ' + realTol + '%')
-      $('#real-value').removeAttr('style').text("Standard Value: " + resistor.closestResistor.getValueString() + '\u03A9 \u00B1' + realTol + '%')
+      $('#real-value').show().text("Standard Value: " + resistor.closestResistor.getValueString() + '\u03A9 \u00B1' + realTol + '%')
     }
   }
 }
@@ -102,6 +102,7 @@ $(function(){
       $btn.text('Mode: 5 Band')
       $('#4band').hide()
       $('#5band').show()
+      $('#mode-store').val('5band')
     } else {
       window.resistorMode = '4band'
       window.resistorMaxSeries = 'E24'
@@ -110,9 +111,21 @@ $(function(){
       $btn.text('Mode: 4 Band')
       $('#4band').show()
       $('#5band').hide()
+      $('#mode-store').val('4band')
     }
     $('#resistor-form').trigger('submit')
   })
+
+  if ($('#mode-store').val() == '5band') { // DRY it up dude
+    $btn = $('#band-mode')
+    window.resistorMode = '5band'
+    window.resistorMaxSeries = 'E96'
+    window.resistorForceFiveBand = 'true'
+    $btn.data('mode', '5band')
+    $btn.text('Mode: 5 Band')
+    $('#4band').hide()
+    $('#5band').show()
+  }
 
   $('#parse-mode').on('click', function(e){
     $btn = $(this)
