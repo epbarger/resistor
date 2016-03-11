@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html>
+<html manifest="offline.manifest">
   <head>
     <meta charset="UTF-8">
     <!-- JQuery -->
@@ -41,21 +41,21 @@
     <div class='container'>
       <header>
         <h1>ResistorCalc.net</h1>
-        [
-        <button id='band-mode' type="button" class="btn btn-sm btn-link" data-mode='4band'>Mode: 4 Band</button>
-        <button id='parse-mode' type='button' class='btn btn-sm btn-link' data-mode='fake'>Parsing: Basic Sanitization</button>
-        ]
-        <!-- four band code calculator(<a href="http://www.allaboutcircuits.com/textbook/reference/chpt-2/resistor-color-codes/">?</a>) -->
+<!--         <button id='band-mode' type="button" class="btn btn-xs btn-default" data-mode='4band' style='width:100%;max-width:290px;'>Mode: 4 Band</button>        
+ -->        <!-- four band code calculator(<a href="http://www.allaboutcircuits.com/textbook/reference/chpt-2/resistor-color-codes/">?</a>) -->
       </header>
 
       <div id='resistor-tool'>
         <form id='resistor-form'>
           <div class='row input-row no-gutters'>
             <div class='col-xs-12'>
-              <input type="text" class="form-control input-superlg" id='resistor-value' value='4.7k&#937;'>             
+              <button id='band-mode' type="button" class="btn btn-sm btn-default" data-mode='4band' >Mode: 4 Band</button>    
+              <button id='real-value' type='button' class='btn btn-sm btn-default' style='opacity:0'></button>    
+              <input type="text" class="form-control input-superlg" id='resistor-value' value='4.7k&#937;'>         
             </div>
           </div>
         </form>
+
 
         <div class='row no-gutters'>
           <div class='col-md-9'>
@@ -181,8 +181,8 @@
             <select class="form-control input-verylg color-selector" id="tolerance">
               <option value='10' style='background-color:silver; color:white;'>&#177;10%</option>
               <option value='5' selected="selected" style='background-color:gold; color:#333;'>&#177;5%</option>
-              <option value='2' style='background-color:red; color:white; display:none;'>&#177;2%</option>
-              <option value='1' style='background-color:brown; color:white; display:none;'>&#177;1%</option>
+              <option value='2' style='background-color:red; color:white;'>&#177;2%</option>
+              <option value='1' style='background-color:brown; color:white;'>&#177;1%</option>
             </select>
           </div>
         </div>
@@ -190,10 +190,17 @@
 
       </div>
 
-<!--       <div class='pull-right sig'>
-        by <a href='https://www.github.com/epbarger'>epbarger</a>
-      </div> -->
-
+      <div id='features'>
+        <strong> How to Use</strong>
+        <p class='indent'>Enter a resistor value in the text box or change the band colors via the dropdowns.</p>
+        <strong> Features </strong>
+        <ul>
+          <li>Works for four and five band resistors</li>
+          <li>Shows the nearest standard value</li>
+          <li>Extremely mobile friendly</li>
+          <li>Works offline</li>
+        </ul>
+      </div>
     </div>
   </body>
 </html>

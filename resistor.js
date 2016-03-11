@@ -73,11 +73,11 @@ var parseResistorString = function(unparsedString){
 }
 
 var Resistor = function(value, tolerance, bands, maxSeries, useRealValues, fiveBand) {
-  var closestRealValue = function(value, maxSeries){
+  var closestRealValue = function(value, maxSeries, fiveBand){
     var seriesToSliceIndex = {E12: 1, E24: 2, E48: 3, E96: 4}
     var sliceIndex = seriesToSliceIndex[maxSeries.toUpperCase()]
     var allValues = SearchValues.slice(0, sliceIndex)[sliceIndex - 1]
-    return findNearestNumericalMatch(allValues, value)
+    return fiveBand == 'true' ? Math.max(1.0, findNearestNumericalMatch(allValues, value)) : findNearestNumericalMatch(allValues, value)
   }
 
 
@@ -99,7 +99,10 @@ var Resistor = function(value, tolerance, bands, maxSeries, useRealValues, fiveB
         santitizedString += digit
       }
     }
-    return parseFloat(santitizedString)
+    var output = parseFloat(santitizedString)
+    output = fiveBand == 'true' ? Math.max(1.0, output) : Math.max(0.1, output)
+    output = fiveBand == 'true' ? Math.min(output, 999000000) : Math.min(output, 990000000)
+    return output
   }
 
   var earliestSeries = function(value) {
@@ -169,17 +172,14 @@ var Resistor = function(value, tolerance, bands, maxSeries, useRealValues, fiveB
   this.realValue = useRealValues == 'true'
   fiveBand = fiveBand || 'false'
   if (value) {
-    if (value < 0.1 || value > 1000000000) {
-      alert('Unsupported value')
-      throw('Unsupported value.')
-    }
     if (useRealValues == 'true') {
-      this.value = closestRealValue(value, maxSeries)
+      this.value = closestRealValue(value, maxSeries, fiveBand)
       this.series = earliestSeries(this.value)
       this.tolerance = pickTolerance(this.value, tolerance, this.availableTolerances())
     } else {
       this.value = sanitizeValue(value, fiveBand)
-      this.tolerance = tolerance
+      this.closestResistor = new Resistor(closestRealValue(this.value, maxSeries, fiveBand), tolerance, null, this.maxSeries, 'true', fiveBand)
+      this.tolerance = findNearestNumericalMatch([10, 5, 2, 1], parseInt(tolerance)).toString()
     }
     this.bands = getBands(this.value, this.tolerance, fiveBand)
   } else if (bands) {
@@ -187,6 +187,7 @@ var Resistor = function(value, tolerance, bands, maxSeries, useRealValues, fiveB
     this.series = earliestSeries(this.value)
     this.tolerance = bands[bands.length - 1]
     this.bands = getBands(this.value, this.tolerance, fiveBand)
+    this.closestResistor = new Resistor(closestRealValue(this.value, maxSeries, fiveBand), tolerance, null, this.maxSeries, 'true', fiveBand)
   } else {
     throw('Could not initialize.')
   }
@@ -218,5 +219,21 @@ Resistor.prototype.getValueString = function(){
   } else {
     var formattedString = valueString.slice(0,digitsUntilDecimal-6) + '.' + valueString.slice(digitsUntilDecimal-6).replace(/0{1,6}$/, '')
     return formattedString.replace(/\.$/, '') + 'M'
+  }
+}
+
+Resistor.prototype.getRealValueString = function(){ // this shouldn't be a thing, DRY it up
+  if (this.closestRealValue) {
+    var valueString = this.closestRealValue.toString()
+    var digitsUntilDecimal = valueString.match(/[0-9]+/g)[0].length
+    if (digitsUntilDecimal <= 3){
+      return valueString
+    } else if (digitsUntilDecimal >= 4 && digitsUntilDecimal <= 6) {
+      var formattedString = valueString.slice(0,digitsUntilDecimal-3) + '.' + valueString.slice(digitsUntilDecimal-3).replace(/0{1,3}$/, '')
+      return formattedString.replace(/\.$/, '') + 'k'
+    } else {
+      var formattedString = valueString.slice(0,digitsUntilDecimal-6) + '.' + valueString.slice(digitsUntilDecimal-6).replace(/0{1,6}$/, '')
+      return formattedString.replace(/\.$/, '') + 'M'
+    }
   }
 }

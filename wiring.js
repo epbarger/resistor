@@ -4,6 +4,7 @@ ToDo
  - make sure to show the right mode on start to match value.
    maybe move four or five band mode to hidden field so it persists?
  - show status/details on current value?
+ - investigate appcache not working
 */
 
 jQuery.fn.center = function () {
@@ -29,7 +30,8 @@ var assignDropdownArrowColor = function(dropdown){
 }
 
 var updateEverything = function(resistor) {
-  $('#resistor-value').val(resistor.getValueString() + '\u03A9') // ohm \u03A9 plusminus \u00B1 // '\u00B1' + resistor.tolerance + '%'
+  // console.log(resistor)
+  $('#resistor-value').val(resistor.getValueString() + '\u03A9 \u00B1' + resistor.tolerance + '%') // ohm \u03A9 plusminus \u00B1 // '\u00B1' + resistor.tolerance + '%'
   $('.band1').val(resistor.bands[0])
   $('.band2').val(resistor.bands[1])
   var bandsLength = resistor.bands.length
@@ -40,25 +42,41 @@ var updateEverything = function(resistor) {
   }
   $('.multiplier').val(resistor.bands[bandsLength-2])
 
-  var tolerance = pickTolerance(resistor.availableTolerances(), $('#tolerance').val())
-  console.log(tolerance)
-  if (tolerance) {
-    $('#tolerance').val(tolerance)
-    $("#tolerance option[value='10'], #tolerance option[value='5'], #tolerance option[value='2'], #tolerance option[value='1']").hide();
-    $.each(resistor.availableTolerances(), function(i, tol){
-      $("#tolerance option[value='" + tol + "']").show()
-    })   
-  } else {
-    $("#tolerance option[value='10'], #tolerance option[value='5'], #tolerance option[value='2'], #tolerance option[value='1']").show();
+  if (resistor.tolerance) {
+    $('#tolerance').val(resistor.tolerance)
   }
 
+  // var tolerance = pickTolerance(resistor.availableTolerances(), $('#tolerance').val())
+  // $toleranceOptions = $("#tolerance option[value='10'], #tolerance option[value='5'], #tolerance option[value='2'], #tolerance option[value='1']")
+  // if (tolerance) {
+  //   $('#tolerance').val(tolerance)
+  //   $toleranceOptions.hide();
+  //   $toleranceOptions.attr('disabled', 'disabled')
+  //   $.each(resistor.availableTolerances(), function(i, tol){
+  //     $("#tolerance option[value='" + tol + "']").show()
+  //     $("#tolerance option[value='" + tol + "']").removeAttr('disabled')
+  //   })   
+  // } else {
+  //   $toleranceOptions.show();
+  //   $toleranceOptions.removeAttr('disabled')
+  // }
+
+  if (resistor.closestResistor) {
+    if ((resistor.value == resistor.closestResistor.value) && (resistor.closestResistor.availableTolerances().indexOf($('#tolerance').val()) > -1)) {
+      $('#real-value').hide()
+    } else {
+      var realTol = resistor.closestResistor.tolerance == '10' ? '5' : resistor.closestResistor.tolerance
+      $('#real-value').attr('value', resistor.closestResistor.getValueString() + '\u03A9 ' + realTol + '%')
+      $('#real-value').removeAttr('style').text("Standard Value: " + resistor.closestResistor.getValueString() + '\u03A9 \u00B1' + realTol + '%')
+    }
+  }
 }
 
 var pickTolerance = function(availableTolerances, oldTolerance) {
-  if (availableTolerances.indexOf(oldTolerance) > 0){
+  if (availableTolerances.indexOf(oldTolerance) >= 0){
     return oldTolerance
   } else {
-    if (availableTolerances[0] == 10){
+    if (availableTolerances[0] == '10'){
       return '5'
     } else {
       return availableTolerances[0]
@@ -101,7 +119,7 @@ $(function(){
     if ($btn.data('mode') == 'real'){
       window.resistorUseRealValues = 'false'
       $btn.data('mode', 'fake')
-      $btn.text('Parsing: Basic Sanitization')
+      $btn.text('Parsing: Normal')
     } else {
       window.resistorUseRealValues = 'true'
       $btn.data('mode', 'real')
@@ -124,15 +142,31 @@ $(function(){
   $('#resistor-form').on('submit', function(e){
     e.preventDefault()
     var parsedValues = parseResistorString($('#resistor-value').val())
-    window.resistor = new Resistor(parsedValues[0], parsedValues[1], null, window.resistorMaxSeries, window.resistorUseRealValues, window.resistorForceFiveBand)
+    try {
+      window.resistor = new Resistor(parsedValues[0], parsedValues[1], null, window.resistorMaxSeries, window.resistorUseRealValues, window.resistorForceFiveBand)
+    } catch (e) {
+      alert(e)
+    }
     updateEverything(resistor)
     copySelectColorStyles()
     if (document.activeElement != document.body) document.activeElement.blur();
   });
 
-  $('#resistor-value').on('change', function(e){
-    $('#resistor-form').trigger('submit')
+  $('#resistor-value').on('change', function(e){ // DRY up this pattern
+    var parsedValues = parseResistorString($('#resistor-value').val())
+    try {
+      window.resistor = new Resistor(parsedValues[0], parsedValues[1], null, window.resistorMaxSeries, window.resistorUseRealValues, window.resistorForceFiveBand)
+    } catch (e) {
+      alert(e)
+    }
+    updateEverything(resistor)
+    copySelectColorStyles()
   });
+
+  $('#real-value').on('click', function(e){
+    $('#resistor-value').val(this.value)
+    $('#resistor-form').trigger('submit')
+  })
 
   // onload execution
   if ($(window).height() >= $(document).height()) {
@@ -141,6 +175,8 @@ $(function(){
       $('.container').center()
     })
   } 
+
+  $('#resistor-form').trigger('submit')
 
   copySelectColorStyles()
 })
