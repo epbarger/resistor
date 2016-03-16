@@ -26,7 +26,7 @@ var assignDropdownArrowColor = function(dropdown){
 }
 
 var updateEverything = function(resistor) {
-  console.log(resistor)
+  // console.log(resistor)
   $('#resistor-value').val(resistor.getValueString() + '\u03A9 \u00B1' + (resistor.tolerance ? resistor.tolerance : $('#tolerance').val()) + '%') // ohm \u03A9 plusminus \u00B1 // '\u00B1' + resistor.tolerance + '%'
   $('.band1').val(resistor.bands[0])
   $('.band2').val(resistor.bands[1])
@@ -42,24 +42,8 @@ var updateEverything = function(resistor) {
     $('#tolerance').val(resistor.tolerance)
   }
 
-  // var tolerance = pickTolerance(resistor.availableTolerances(), $('#tolerance').val())
-  // $toleranceOptions = $("#tolerance option[value='10'], #tolerance option[value='5'], #tolerance option[value='2'], #tolerance option[value='1']")
-  // if (tolerance) {
-  //   $('#tolerance').val(tolerance)
-  //   $toleranceOptions.hide();
-  //   $toleranceOptions.attr('disabled', 'disabled')
-  //   $.each(resistor.availableTolerances(), function(i, tol){
-  //     $("#tolerance option[value='" + tol + "']").show()
-  //     $("#tolerance option[value='" + tol + "']").removeAttr('disabled')
-  //   })   
-  // } else {
-  //   $toleranceOptions.show();
-  //   $toleranceOptions.removeAttr('disabled')
-  // }
-
   if (resistor.closestResistor) {
     if ((resistor.value == resistor.closestResistor.value) && (resistor.closestResistor.availableTolerances().indexOf($('#tolerance').val()) > -1)) {
-      // $('#real-value').hide()
       var seriesMap = { '10': 'E12', '5': 'E24', '2': 'E48', '1': 'E96'}
       $('#series').text('Series: ' + seriesMap[$('#tolerance').val()]).show()
       $('#real-value').hide()
@@ -70,6 +54,17 @@ var updateEverything = function(resistor) {
       $('#real-value').show().text("Standard Value: " + resistor.closestResistor.getValueString() + '\u03A9 \u00B1' + realTol + '%')
     }
   }
+}
+
+var triggerUpdate = function(){
+  var parsedValues = parseResistorString($('#resistor-value').val())
+  try {
+    window.resistor = new Resistor(parsedValues[0], parsedValues[1], null, window.resistorMaxSeries, window.resistorUseRealValues, window.resistorForceFiveBand)
+  } catch (e) {
+    alert(e)
+  }
+  updateEverything(resistor)
+  copySelectColorStyles()
 }
 
 var pickTolerance = function(availableTolerances, oldTolerance) {
@@ -84,48 +79,37 @@ var pickTolerance = function(availableTolerances, oldTolerance) {
   }
 }
 
-$(function(){
-  window.resistorMode = '4band'
-  window.resistorMaxSeries = 'E24'
-  window.resistorUseRealValues = 'false'
-  window.resistorForceFiveBand = 'false'
-
-  // event binding
-  // this could stand to be DRYd a bit
-  $('#band-mode').on('click', function(e){
-    $btn = $(this)
-    if ($btn.data('mode') == '4band'){
-      window.resistorMode = '5band'
-      window.resistorMaxSeries = 'E96'
-      window.resistorForceFiveBand = 'true'
-      $btn.data('mode', '5band')
-      $btn.text('Mode: 5 Band')
-      $('#4band').hide()
-      $('#5band').show()
-      $('#mode-store').val('5band')
-    } else {
-      window.resistorMode = '4band'
-      window.resistorMaxSeries = 'E24'
-      window.resistorForceFiveBand = 'false'
-      $btn.data('mode', '4band')
-      $btn.text('Mode: 4 Band')
-      $('#4band').show()
-      $('#5band').hide()
-      $('#mode-store').val('4band')
-    }
-    $('#resistor-form').trigger('submit')
-  })
-
-  if ($('#mode-store').val() == '5band') { // DRY it up dude
-    $btn = $('#band-mode')
+var setMode = function(bands){
+  if (bands == 5){
     window.resistorMode = '5band'
     window.resistorMaxSeries = 'E96'
     window.resistorForceFiveBand = 'true'
-    $btn.data('mode', '5band')
-    $btn.text('Mode: 5 Band')
     $('#4band').hide()
     $('#5band').show()
+    $('#mode-store').val('5band')
+  } else {
+    window.resistorMode = '4band'
+    window.resistorMaxSeries = 'E24'
+    window.resistorForceFiveBand = 'false'
+    $('#4band').show()
+    $('#5band').hide()
+    $('#mode-store').val('4band')
   }
+}
+
+$(function(){
+  // event binding
+  $('#band-mode').on('click', function(e){
+    $btn = $(this)
+    if ($('#mode-store').val() == '4band'){
+      setMode(5)
+      $btn.text('Mode: 5 Band')
+    } else {
+      setMode(4)
+      $btn.text('Mode: 4 Band')
+    }
+    $('#resistor-form').trigger('submit')
+  })
 
   $('#parse-mode').on('click', function(e){
     $btn = $(this)
@@ -154,34 +138,30 @@ $(function(){
 
   $('#resistor-form').on('submit', function(e){
     e.preventDefault()
-    var parsedValues = parseResistorString($('#resistor-value').val())
-    try {
-      window.resistor = new Resistor(parsedValues[0], parsedValues[1], null, window.resistorMaxSeries, window.resistorUseRealValues, window.resistorForceFiveBand)
-    } catch (e) {
-      alert(e)
-    }
-    updateEverything(resistor)
-    copySelectColorStyles()
+    triggerUpdate()
     if (document.activeElement != document.body) document.activeElement.blur();
   });
 
-  $('#resistor-value').on('change', function(e){ // DRY up this pattern
-    var parsedValues = parseResistorString($('#resistor-value').val())
-    try {
-      window.resistor = new Resistor(parsedValues[0], parsedValues[1], null, window.resistorMaxSeries, window.resistorUseRealValues, window.resistorForceFiveBand)
-    } catch (e) {
-      alert(e)
-    }
-    updateEverything(resistor)
-    copySelectColorStyles()
-  });
+  $('#resistor-value').on('change', triggerUpdate);
 
   $('#real-value').on('click', function(e){
     $('#resistor-value').val(this.value)
     $('#resistor-form').trigger('submit')
   })
 
+
   // onload execution
+  window.resistorMode = '4band'
+  window.resistorMaxSeries = 'E24'
+  window.resistorUseRealValues = 'false'
+  window.resistorForceFiveBand = 'false'
+
+  if ($('#mode-store').val() == '5band') {
+    $btn = $('#band-mode')
+    $btn.text('Mode: 5 Band')
+    setMode(5)
+  }
+
   if ($(window).height() >= $(document).height()) {
     $('.container').center()
     $(window).resize(function(){
@@ -190,6 +170,5 @@ $(function(){
   } 
 
   $('#resistor-form').trigger('submit')
-
   copySelectColorStyles()
 })

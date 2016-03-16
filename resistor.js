@@ -15,7 +15,6 @@ var generateStandardSeries = function(seriesArray) {
   for (var i = 0; i < multipliers.length; i++) {
     output = output.concat( seriesArray.map(function(val){ return Math.round(multipliers[i] * val * 10000) / 10000 }) )
   }
-  // output.push(100000000) // add in 10M
   return output
 }
 
@@ -79,7 +78,6 @@ var Resistor = function(value, tolerance, bands, maxSeries, useRealValues, fiveB
     var allValues = SearchValues.slice(0, sliceIndex)[sliceIndex - 1]
     return fiveBand == 'true' ? Math.max(1.0, findNearestNumericalMatch(allValues, value)) : findNearestNumericalMatch(allValues, value)
   }
-
 
   var sanitizeValue = function(resistorFloat, fiveBand){
     var resistorFloatString = resistorFloat.toString()
@@ -172,7 +170,7 @@ var Resistor = function(value, tolerance, bands, maxSeries, useRealValues, fiveB
   this.realValue = useRealValues == 'true'
   fiveBand = fiveBand || 'false'
   if (value) {
-    if (useRealValues == 'true') {
+    if (useRealValues == 'true') { // this isn't in use in the application, but I figure it's worth keeping in here
       this.value = closestRealValue(value, maxSeries, fiveBand)
       this.series = earliestSeries(this.value)
       this.tolerance = pickTolerance(this.value, tolerance, this.availableTolerances())
@@ -219,21 +217,5 @@ Resistor.prototype.getValueString = function(){
   } else {
     var formattedString = valueString.slice(0,digitsUntilDecimal-6) + '.' + valueString.slice(digitsUntilDecimal-6).replace(/0{1,6}$/, '')
     return formattedString.replace(/\.$/, '') + 'M'
-  }
-}
-
-Resistor.prototype.getRealValueString = function(){ // this shouldn't be a thing, DRY it up
-  if (this.closestRealValue) {
-    var valueString = this.closestRealValue.toString()
-    var digitsUntilDecimal = valueString.match(/[0-9]+/g)[0].length
-    if (digitsUntilDecimal <= 3){
-      return valueString
-    } else if (digitsUntilDecimal >= 4 && digitsUntilDecimal <= 6) {
-      var formattedString = valueString.slice(0,digitsUntilDecimal-3) + '.' + valueString.slice(digitsUntilDecimal-3).replace(/0{1,3}$/, '')
-      return formattedString.replace(/\.$/, '') + 'k'
-    } else {
-      var formattedString = valueString.slice(0,digitsUntilDecimal-6) + '.' + valueString.slice(digitsUntilDecimal-6).replace(/0{1,6}$/, '')
-      return formattedString.replace(/\.$/, '') + 'M'
-    }
   }
 }
