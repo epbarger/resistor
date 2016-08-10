@@ -145,8 +145,12 @@ $(function(){
 
   $('#resistor-value').on('change', triggerUpdate);
 
-  $('#resistor-value').on('keyup', function(e){
+  $('#resistor-value').on('focus', function(e){
     $('.color-row').fadeTo(200, 0.2);
+  })
+
+  $('#resistor-value').on('blur', function(e){
+    $('.color-row').css('opacity', 1.0);
   })
 
   $('#real-value').on('click', function(e){
