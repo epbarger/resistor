@@ -126,7 +126,7 @@ $(function(){
     $('#resistor-form').trigger('submit')
   })
 
-  $('.color-selector').on('change', function(e){
+  $('.color-selector').on('change keyup', function(e){
     if (window.resistorMode == '4band'){
       var bands = [$('#4band .band1').val(), $('#4band .band2').val(), $('#4band .multiplier').val(), $('#tolerance').val()]
     } else {
@@ -136,6 +136,10 @@ $(function(){
     updateEverything(resistor)
     copySelectColorStyles()
   });
+
+  $('.color-selector').on('keydown', function(e){
+    setTimeout(function(){ copySelectColorStyles() }, 0)
+  })
 
   $('#resistor-form').on('submit', function(e){
     e.preventDefault()

@@ -162,7 +162,12 @@ var Resistor = function(value, tolerance, bands, maxSeries, useRealValues, fiveB
     if (bands.length == 5) {
       baseValueString = baseValueString + bands[2].toString()
     }
-    return parseInt(baseValueString) * multiplier
+
+    output = parseInt(baseValueString) * multiplier
+
+    // http://stackoverflow.com/questions/11832914/round-to-at-most-2-decimal-places-in-javascript#11832950
+    output = Math.round((output + 0.00001) * 100) / 100
+    return output
   }
 
   maxSeries = maxSeries || 'E96'
