@@ -63,6 +63,7 @@ var triggerUpdate = function(){
   } catch (e) {
     alert(e)
   }
+  $('.color-row').css('opacity', 1.0)
   updateEverything(resistor)
   copySelectColorStyles()
 }
@@ -143,6 +144,10 @@ $(function(){
   });
 
   $('#resistor-value').on('change', triggerUpdate);
+
+  $('#resistor-value').on('keyup', function(e){
+    $('.color-row').fadeTo(200, 0.2);
+  })
 
   $('#real-value').on('click', function(e){
     $('#resistor-value').val(this.value)
