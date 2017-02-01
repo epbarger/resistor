@@ -73,7 +73,7 @@ var triggerUpdate = function(){
     $('#error-notice').show()
     // alert("Error: " + e)
   }
-  //$('.color-row').css('opacity', 1.0)
+  $('.color-row').css('opacity', 1.0)
   if (resistor) { updateEverything(resistor) }
   copySelectColorStyles()
 }
