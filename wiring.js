@@ -1,6 +1,10 @@
 /*
 ToDo
-  - ???
+  - improved error messaging
+  - fix fade out error bug on bands
+  - add custom color capabilities (and improve the band colors)
+  - add surface mount mode
+  - ?? add generated real world "photo"
 */
 
 jQuery.fn.center = function () {
@@ -61,10 +65,13 @@ var triggerUpdate = function(){
   try {
     window.resistor = new Resistor(parsedValues[0], parsedValues[1], null, window.resistorMaxSeries, window.resistorUseRealValues, window.resistorForceFiveBand)
   } catch (e) {
-    alert(e)
+    window.resistor = null
+    $('#series').hide()
+    $('#real-value').hide()
+    // alert("Error: " + e)
   }
-  $('.color-row').css('opacity', 1.0)
-  updateEverything(resistor)
+  // $('.color-row').css('opacity', 1.0)
+  if (resistor) { updateEverything(resistor) }
   copySelectColorStyles()
 }
 
@@ -154,7 +161,7 @@ $(function(){
   })
 
   $('#resistor-value').on('blur', function(e){
-    $('.color-row').css('opacity', 1.0);
+    if (window.resistor) { $('.color-row').css('opacity', 1.0); }
   })
 
   $('#real-value').on('click', function(e){
