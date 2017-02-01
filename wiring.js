@@ -1,9 +1,8 @@
 /*
 ToDo
-  - improved error messaging
-  - fix fade out error bug on bands
   - add custom color capabilities (and improve the band colors)
   - add surface mount mode
+  - add compatibility with 0 ohm resistor
   - ?? add generated real world "photo"
 */
 
@@ -64,13 +63,17 @@ var triggerUpdate = function(){
   var parsedValues = parseResistorString($('#resistor-value').val())
   try {
     window.resistor = new Resistor(parsedValues[0], parsedValues[1], null, window.resistorMaxSeries, window.resistorUseRealValues, window.resistorForceFiveBand)
+    $('#resistor-value').removeClass('error')
+    $('#error-notice').hide()
   } catch (e) {
     window.resistor = null
     $('#series').hide()
     $('#real-value').hide()
+    $('#resistor-value').addClass('error')
+    $('#error-notice').show()
     // alert("Error: " + e)
   }
-  // $('.color-row').css('opacity', 1.0)
+  //$('.color-row').css('opacity', 1.0)
   if (resistor) { updateEverything(resistor) }
   copySelectColorStyles()
 }
@@ -139,6 +142,10 @@ $(function(){
     } else {
       var bands = [$('#5band .band1').val(), $('#5band .band2').val(), $('#5band .band3').val(), $('#5band .multiplier').val(), $('#tolerance').val()]
     }
+    $('#resistor-value').removeClass('error')
+    $('#error-notice').hide()
+    $('.color-row').css('opacity', 1.0)
+
     window.resistor = new Resistor(null, null, bands, window.resistorMaxSeries, window.resistorUseRealValues, window.resistorForceFiveBand)
     updateEverything(resistor)
     copySelectColorStyles()

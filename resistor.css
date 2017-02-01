@@ -132,6 +132,10 @@ input {
   float:right;
 }
 
+#error-notice{
+  color: #ec0b0b;
+}
+
 .btn-default:hover {
   color: #E4E4E4;
   background: rgb(96, 96, 96) none repeat scroll 0% 0%;
@@ -139,12 +143,23 @@ input {
 }
 
 .form-control {
-  border-color: #454545;;
+  border-color: #454545;
 }
 
 .form-control:focus {
-    border-color: #a1a1a1;
-    outline: 0;
-    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(150,150,150,.6);
-    box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(150,150,150,.6);
+  border-color: #a1a1a1;
+  outline: 0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(150,150,150,.6);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(150,150,150,.6);
+}
+
+.form-control.error {
+  border-color: #ec0b0b;
+  color: #ec0b0b;
+}
+
+.form-control.error:focus {
+  outline: 0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(255,0,0,.6);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(255,0,0,.6);
 }
