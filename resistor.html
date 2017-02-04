@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html manifest="offline.manifest">
+<html> <!-- manifest="offline.manifest" -->
   <head>
     <meta charset="UTF-8">
     <!-- JQuery -->
@@ -50,6 +50,12 @@
           <div class='row input-row no-gutters'>
             <div class='col-xs-12'>
               <button id='band-mode' type="button" class="btn btn-sm btn-default" data-mode='4band' >Mode: 4 Band</button>    
+<!--               <div class='dropdown-arrow'> ▼ </div>
+              <select class="form-control">
+                <option value='4band' style=''>4 Band</option>
+                <option value='5band' style=''>5 Band</option>
+                <option value='smd' style=''>Surface Mount</option>
+              </select> -->
               <button id='real-value' type='button' class='btn btn-sm btn-default' style='display:none'></button>  
               <span class='btn-sm pull-right' id='series'><span>Series:</span> E24</span> 
               <span class='btn-sm pull-right' id='error-notice' style='display:none'><span>Invalid Input</span></span>
@@ -200,7 +206,7 @@
         <ul>
           <li>Works for four and five band resistors</li>
           <li>Shows the nearest standard series value</li>
-          <li>Mobile friendly, works offline</li>
+          <li>Mobile friendly</li>
         </ul>
       </div>
     </div>
